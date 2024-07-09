@@ -5,7 +5,7 @@ A python code to fetch fit files from XOSS G+ cyclo-computer over bluetooth (BLE
 
 A quick/preliminary version of code to fetch fit files from XOSS G+ cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss).
 
-This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2.
+This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
 This code was tested with XOSS G+, Win10 on Core-i5, TPLink USB BT dongle, py-3.8.6 and bleak-0.22.2.
 
