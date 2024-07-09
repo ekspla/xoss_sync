@@ -42,12 +42,9 @@ VALUE_EOT = bytearray([0x04])                             # EOT
 
 AWAIT_NEW_DATA = bytearray([0x41, 0x77, 0x61, 0x69, 0x74, 0x4E, 0x65, 0x77, 0x44, 0x61, 0x74, 0x61]) # 'AwaitNewData'
 
-VALUE_MTU = 23
-
 class BluetoothFileTransfer:
     def __init__(self):
         self.data = bytearray()
-        self.file_check = bytearray()
         self.count = 0
         self.notification_data = bytearray()
         self.is_block = False
@@ -61,7 +58,7 @@ class BluetoothFileTransfer:
         async def notification_handler(sender, data):
             ##print(data) # For test.
 
-            if data == VALUE_EOT:
+            if data == VALUE_EOT:  # Receive EOT.
                 self.count = 6
                 self.idx_block = 0
                 self.is_block = False
@@ -161,15 +158,15 @@ class BluetoothFileTransfer:
             self.is_block = True
             self.data = bytearray()
 
-            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1)
-            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1) # Send 'C'.
 
-            while self.is_block:
+            while self.is_block:                                              # Receive EOT to exit this loop.
                 await self.read_blocks_combine(client)
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
             await self.end_of_transfer(client)
             self.save_file_raw(filename, self.data)
-    
+
     async def wait_until_data(self,client):
         i=0
         while self.notification_data == AWAIT_NEW_DATA:
@@ -204,7 +201,7 @@ class BluetoothFileTransfer:
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
                 print(f"Notifications started")
                 await self.read_diskspace(client)
-                await self.fetch_file(client,'filelist.txt')
+                await self.fetch_file(client, 'filelist.txt')
 
                 fit_files = self.extract_fit_filenames('filelist.txt')
 
@@ -213,7 +210,7 @@ class BluetoothFileTransfer:
                         print(f'Skip: {fit_file}')
                     else:
                         print(f"Retrieving {fit_file}")
-                        await self.fetch_file(client,fit_file)
+                        await self.fetch_file(client, fit_file)
 
                 await client.stop_notify(CTL_CHARACTERISTIC_UUID)
                 await client.stop_notify(TX_CHARACTERISTIC_UUID)
