@@ -141,7 +141,7 @@ class BluetoothFileTransfer:
         await self.wait_until_data(client)
 
     # Function to fetch a file
-    async def fetch_file(self,client,filename):
+    async def fetch_file(self, client, filename):
         # Request Read Permission
         await self.request_read_file(client)
         # Request the File
@@ -167,7 +167,7 @@ class BluetoothFileTransfer:
             await self.end_of_transfer(client)
             self.save_file_raw(filename, self.data)
 
-    async def wait_until_data(self,client):
+    async def wait_until_data(self, client):
         i=0
         while self.notification_data == AWAIT_NEW_DATA:
             await asyncio.sleep(0.01)
@@ -176,7 +176,7 @@ class BluetoothFileTransfer:
                 print(f"Something went wrong No new notification data")
                 break
 
-    async def read_diskspace(self,client):
+    async def read_diskspace(self, client):
         # Read Diskspace; e.g. bytearray(b'\n556/8104\x1e')
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)
