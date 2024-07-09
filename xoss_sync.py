@@ -7,7 +7,7 @@
 # This code is a modified version of cycsync.py (https://github.com/Kaiserdragon2/CycSync) for Cycplus M2.
 #
 # The main differences from Cycsync are:
-# 1. additions of crc_xor8 and crc16_arc to check the data.
+# 1. additions of crc8_xor and crc16_arc to check the data.
 # 2. use of memoryview in handling notification packets (to form a block in YMODEM protocol).
 # 3. tested with XOSS G+ instead of Cycplus M2.
 # 4. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink USB BT dongle, py-3.8.6 and bleak-0.22.2).
@@ -29,8 +29,9 @@ CTL_CHARACTERISTIC_UUID = "6e400004-b5a3-f393-e0a9-e50e24dcca9e"
 TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
-VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09])
+VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09])          # Its response starts with 0x0a
 VALUE_READ = bytearray([0xff, 0x00, 0xff])
+#VALUE_IDLE = bytearray([0x04, 0x00, 0x04])
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
 #VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
 VALUE_C = bytearray([0x43])                               # 'C'
@@ -40,7 +41,7 @@ VALUE_NAK = bytearray([0x15])                             # NAK
 VALUE_EOT = bytearray([0x04])                             # EOT
 #VALUE_CAN = bytearray([0x18])                             # CAN
 
-AWAIT_NEW_DATA = bytearray([0x41, 0x77, 0x61, 0x69, 0x74, 0x4E, 0x65, 0x77, 0x44, 0x61, 0x74, 0x61]) # 'AwaitNewData'
+AWAIT_NEW_DATA = bytearray(b'AwaitNewData')
 
 class BluetoothFileTransfer:
     def __init__(self):
@@ -58,17 +59,17 @@ class BluetoothFileTransfer:
         async def notification_handler(sender, data):
             ##print(data) # For test.
 
-            if data == VALUE_EOT:  # Receive EOT.
+            if data == VALUE_EOT:                                               # Receive EOT.
                 self.count = 6
                 self.idx_block = 0
                 self.is_block = False
                 self.notification_data = data
-            elif self.is_block:
+            elif self.is_block:                                                 # Packets should be combined to make a block.
                 self.block_buf[self.idx_block:self.idx_block + (len_data := len(data))] = data
                 self.idx_block += len_data
                 self.count += 1
             else:
-                self.notification_data = data
+                self.notification_data = data                                  # Other messages/responses.
 
         return notification_handler
 
@@ -104,23 +105,23 @@ class BluetoothFileTransfer:
     async def request_read_file(self, client):
         self.notification_data = AWAIT_NEW_DATA
         self.is_block = False
-        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_READ, 5.0)
-        await self.wait_until_data(client)
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_READ, 5.0)  # Send READ (0xff, 0x00, 0xff)
+        await self.wait_until_data(client)                                     # Receive IDLE (0x04, 0x00, 0x04)
 
-    async def read_block_zero(self, client):
+    async def read_block_zero(self, client): # Block 0 consists of name and size of the file.
         self.count = 0
         self.idx_block = 0
         self.is_block = True
         self.notification_data = AWAIT_NEW_DATA
-        await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)
+        await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
         while self.count <= 5:
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
         if (crc := int.from_bytes(self.block_crc, 'big')) != (calc_crc := self.crc16_arc(self.block_data)):
             print('Error in block 0.')
 
-    async def read_blocks_combine(self, client):
-        while self.count <= 5:                                              # 23(MTU) * 6(packets) = 138 bytes; c.f. 1+1+1+128+2=133 bytes (block)
+    async def read_blocks_combine(self, client): # Blocks of n>=1 should be combined to obtain the file.
+        while self.count <= 5: # 23(MTU) * 6(packets) = 138 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
         # Prepare for the next data block.
@@ -130,7 +131,7 @@ class BluetoothFileTransfer:
         if (crc := int.from_bytes(self.block_crc, 'big')) != (calc_crc := self.crc16_arc(self.block_data)):
             print(f'Error in block {self.block_buf[1]}.')
 
-        self.data.extend(self.block_data)                                   # Omit headers and CRC16.
+        self.data.extend(self.block_data)                                   # Omit headers/CRC16 and combine.
 
     async def end_of_transfer(self, client):
         self.notification_data = AWAIT_NEW_DATA
@@ -138,7 +139,7 @@ class BluetoothFileTransfer:
         await self.wait_until_data(client)                                   # Receive EOT.
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
-        await self.wait_until_data(client)
+        await self.wait_until_data(client)                                   # Receive IDLE (0x04, 0x00, 0x04)
 
     # Function to fetch a file
     async def fetch_file(self, client, filename):
@@ -146,11 +147,11 @@ class BluetoothFileTransfer:
         await self.request_read_file(client)
         # Request the File
         self.notification_data = AWAIT_NEW_DATA
-        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, self.request_array(filename), 0.1)
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, self.request_array(filename), 0.1) # Request starts with 0x05
 
         await self.wait_until_data(client)
 
-        if self.crc_xor8(self.notification_data) == 0: # bytearray(0x06, filename, crc_xor8)
+        if self.notification_data == self.answer_array(filename):                              # Response starts with 0x06
             await self.read_block_zero(client)
 
             self.count = 0
@@ -159,21 +160,21 @@ class BluetoothFileTransfer:
             self.data = bytearray()
 
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
-            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1) # Send 'C'.
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)  # Send 'C'.
 
-            while self.is_block:                                              # Receive EOT to exit this loop.
+            while self.is_block:                                               # Receive EOT to exit this loop.
                 await self.read_blocks_combine(client)
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
             await self.end_of_transfer(client)
             self.save_file_raw(filename, self.data)
 
     async def wait_until_data(self, client):
-        i=0
+        i = 0
         while self.notification_data == AWAIT_NEW_DATA:
             await asyncio.sleep(0.01)
-            i = i+1
-            if i>=1000:
-                print(f"Something went wrong No new notification data")
+            i = i + 1
+            if i >= 1000:
+                print(f"Something went wrong. No new notification data.")
                 break
 
     async def read_diskspace(self, client):
@@ -181,7 +182,7 @@ class BluetoothFileTransfer:
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)
         await self.wait_until_data(client)
-        if self.crc_xor8(self.notification_data) == 0:
+        if self.crc8_xor(self.notification_data) == 0:
             diskspace = self.notification_data[1:-1].decode('utf-8')  # Decode bytearray to string
             print(f"Free Diskspace: {diskspace}kb")
 
@@ -244,9 +245,9 @@ class BluetoothFileTransfer:
         except Exception as e:
             print(f"Failed to decode/write data: {e}")
 
-    def crc_xor8(self, data):
+    def crc8_xor(self, data):
         '''
-        See request_array() how to use.
+        See request_array() and answer_array() how to use.
         '''
         crc = 0
         for x in data:
@@ -269,7 +270,12 @@ class BluetoothFileTransfer:
 
     def request_array(self, string):
         byte_array = bytearray([0x05]) + bytearray(string, 'utf-8') + bytearray([0x00])
-        byte_array[-1] = self.crc_xor8(byte_array)    # Replace the padded zero with crc_xor8.
+        byte_array[-1] = self.crc8_xor(byte_array)    # Replace the padded zero with crc8_xor.
+        return byte_array
+
+    def answer_array(self, string):
+        byte_array = bytearray([0x06]) + bytearray(string, 'utf-8') + bytearray([0x00])
+        byte_array[-1] = self.crc8_xor(byte_array)    # Replace the padded zero with crc8_xor.
         return byte_array
 
 
