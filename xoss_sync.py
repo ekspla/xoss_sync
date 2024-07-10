@@ -1,3 +1,6 @@
+﻿#!/usr/bin/env python
+#coding:utf-8
+#
 # (c) 2024 ekspla.
 # MIT License.  https://github.com/ekspla/xoss_sync
 #
@@ -13,7 +16,7 @@
 # 4. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink USB BT dongle, py-3.8.6 and bleak-0.22.2).
 #
 # TODO:
-# 1. send NACK on error, to request the correct data block once again.
+# 1. check successive block numbers for duplicates.
 # 2. handling of fit-file data more efficiently on memory.
 
 import asyncio
@@ -39,7 +42,7 @@ VALUE_C = bytearray([0x43])                               # 'C'
 VALUE_ACK = bytearray([0x06])                             # ACK
 VALUE_NAK = bytearray([0x15])                             # NAK
 VALUE_EOT = bytearray([0x04])                             # EOT
-#VALUE_CAN = bytearray([0x18])                             # CAN
+VALUE_CAN = bytearray([0x18])                             # CAN
 
 AWAIT_NEW_DATA = bytearray(b'AwaitNewData')
 
@@ -49,11 +52,12 @@ class BluetoothFileTransfer:
         self.count = 0
         self.notification_data = bytearray()
         self.is_block = False
-        self.block_buf = bytearray(3 + 128 + 2)
+        self.block_buf = bytearray(3 + 128 + 2)                                 # Header(SOH, block, ~block); data; CRC16
         self.idx_block = 0
         self.mv_block_buf = memoryview(self.block_buf)
         self.block_data = self.mv_block_buf[3:-2]
         self.block_crc = self.mv_block_buf[-2:]
+        self.block_error = False
 
     def create_notification_handler(self):
         async def notification_handler(sender, data):
@@ -114,24 +118,29 @@ class BluetoothFileTransfer:
         self.is_block = True
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
-        while self.count <= 5:
+        while self.count <= 5: # 23(MTU) * 6(packets) = 138 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
         if (crc := int.from_bytes(self.block_crc, 'big')) != (calc_crc := self.crc16_arc(self.block_data)):
             print('Error in block 0.')
+            self.block_error = True
+        else:
+            self.block_error = False
 
     async def read_blocks_combine(self, client): # Blocks of n>=1 should be combined to obtain the file.
-        while self.count <= 5: # 23(MTU) * 6(packets) = 138 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
+        while self.count <= 5: # Same as block zero as shown above, combine packets to make a block.
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
-        # Prepare for the next data block.
-        self.idx_block = 0
-        self.count = 0
 
         if (crc := int.from_bytes(self.block_crc, 'big')) != (calc_crc := self.crc16_arc(self.block_data)):
             print(f'Error in block {self.block_buf[1]}.')
-
-        self.data.extend(self.block_data)                                   # Omit headers/CRC16 and combine.
+            self.block_error = True
+        else:
+            self.data.extend(self.block_data)                                # Omit headers/CRC16 and combine.
+            self.block_error = False
+        # Prepare for the next data block.
+        self.idx_block = 0
+        self.count = 0
 
     async def end_of_transfer(self, client):
         self.notification_data = AWAIT_NEW_DATA
@@ -148,23 +157,35 @@ class BluetoothFileTransfer:
         # Request the File
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, self.request_array(filename), 0.1) # Request starts with 0x05
-
         await self.wait_until_data(client)
 
         if self.notification_data == self.answer_array(filename):                              # Response starts with 0x06
-            await self.read_block_zero(client)
+            retries = 3
+            while retries > 0:
+                await self.read_block_zero(client)
+                if self.block_error:
+                    retries -= 1
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
+                else:
+                    break
+            if retries == 0:
+                await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
+                sys.exit()
 
             self.count = 0
             self.idx_block = 0
             self.is_block = True
             self.data = bytearray()
 
-            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
-            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)  # Send 'C'.
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1)       # Send ACK.
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)         # Send 'C'.
 
-            while self.is_block:                                               # Receive EOT to exit this loop.
+            while self.is_block:                                                       # Receive EOT to exit this loop.
                 await self.read_blocks_combine(client)
-                await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
+                if self.block_error:
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
+                else:
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
             await self.end_of_transfer(client)
             self.save_file_raw(filename, self.data)
 
