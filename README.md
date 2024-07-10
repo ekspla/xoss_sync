@@ -7,8 +7,41 @@ A quick/preliminary version of code for use with XOSS G+ GPS cyclo-computer, ins
 
 This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-The code shown here was tested with XOSS G+, Win10 on Core-i5, TPLink USB BT dongle, py-3.8.6 and bleak-0.22.2.
+The code shown here was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle, Python-3.8.6 and Bleak-0.22.2.
 
-TODO:
-1. check successive block numbers for duplicates.
-2. handling of fit-file data more efficiently on memory.
+## Features
+This script allows you to:
+
+- Obtain a list of data files on your device
+- Download data (in FIT fromat) from your device
+- See free/usage of storage in your device
+
+## Usage
+1. Install bluetooth low energy interface/driver software on your PC.
+
+2. Check if your device and the PC are paired.
+
+3. Install python (of course).
+
+4. Install [bleak](https://pypi.org/project/bleak/):
+
+```
+pip install bleak
+```
+
+5. Download and run the scrip:
+
+```
+python xoss_sync.py
+```
+
+Though I tested this only with XOSS G+ (gen1) and Windows10, combinations of the other XOSS device/OS might work.
+C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
+
+
+## Limitation
+Though the script seems to work perfectly for my use case as shown above, there are possible limitations due mainly to the implementation
+of YMODEM in part as followings.
+
+- The script expects a transport with MTU of 23 byte, 128-byte fixed data in block, and CRC16/ARC (not CRC16/XMODEM).
+- Successive block numbers in YMODEM transport are not checked.
