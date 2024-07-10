@@ -64,8 +64,6 @@ class BluetoothFileTransfer:
             ##print(data) # For test.
 
             if data == VALUE_EOT:                                               # Receive EOT.
-                self.count = 6
-                self.idx_block = 0
                 self.is_block = False
                 self.notification_data = data
             elif self.is_block:                                                 # Packets should be combined to make a block.
@@ -121,7 +119,7 @@ class BluetoothFileTransfer:
         while self.count <= 5: # 23(MTU) * 6(packets) = 138 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
-        if (crc := int.from_bytes(self.block_crc, 'big')) != (calc_crc := self.crc16_arc(self.block_data)):
+        if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
             print('Error in block 0.')
             self.block_error = True
         else:
@@ -132,7 +130,7 @@ class BluetoothFileTransfer:
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
 
-        if (crc := int.from_bytes(self.block_crc, 'big')) != (calc_crc := self.crc16_arc(self.block_data)):
+        if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
             print(f'Error in block {self.block_buf[1]}.')
             self.block_error = True
         else:
@@ -201,6 +199,7 @@ class BluetoothFileTransfer:
     async def read_diskspace(self, client):
         # Read Diskspace; e.g. bytearray(b'\n556/8104\x1e')
         self.notification_data = AWAIT_NEW_DATA
+        self.is_block = False
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)
         await self.wait_until_data(client)
         if self.crc8_xor(self.notification_data) == 0:
