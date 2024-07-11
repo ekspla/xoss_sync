@@ -7,7 +7,7 @@ A quick/preliminary version of code for use with XOSS G+ GPS cyclo-computer, ins
 
 This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-The code shown here was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle, Python-3.8.6 and Bleak-0.22.2.
+The code shown here was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2.
 
 ## Features
 This script allows you to:
@@ -43,5 +43,6 @@ C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, a
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
 of YMODEM in part as followings.
 
-- The script expects a transport with MTU of 23 byte, 128-byte fixed data in block, and CRC16/ARC (not CRC16/XMODEM).
+- The script expects a transport with MTU of 23, 128-byte data per block, and CRC16/ARC (not CRC16/XMODEM).  I am not sure
+if the SoC(seems to be 52832)/software in the XOSS device supports larger MTU nor 1024-byte data in YMODEM.
 - Successive block numbers in YMODEM transport are not checked.
