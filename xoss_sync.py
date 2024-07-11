@@ -11,9 +11,9 @@
 #
 # The main differences from Cycsync are:
 # 1. additions of crc8_xor and crc16_arc to check the data.
-# 2. use of memoryview in handling notification packets (to form a block in YMODEM protocol).
+# 2. use of slice assignment and memoryview in handling notification packets (to form a block in YMODEM protocol).
 # 3. tested with XOSS G+ instead of Cycplus M2.
-# 4. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink USB BT dongle, py-3.8.6 and bleak-0.22.2).
+# 4. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
 #
 # TODO:
 # 1. check successive block numbers for duplicates.
@@ -116,7 +116,7 @@ class BluetoothFileTransfer:
         self.is_block = True
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
-        while self.count <= 5: # 23(MTU) * 6(packets) = 138 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
+        while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
         if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
