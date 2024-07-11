@@ -114,19 +114,11 @@ class BluetoothFileTransfer:
         self.count = 0
         self.idx_block = 0
         self.is_block = True
-        self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
-        while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
-            await asyncio.sleep(0.1)
-        await asyncio.sleep(0.1)
-        if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
-            print('Error in block 0.')
-            self.block_error = True
-        else:
-            self.block_error = False
+        await self.read_blocks_combine(client)
 
     async def read_blocks_combine(self, client): # Blocks of n>=1 should be combined to obtain the file.
-        while self.count <= 5: # Same as block zero as shown above, combine packets to make a block.
+        while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
 
@@ -170,10 +162,7 @@ class BluetoothFileTransfer:
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
                 sys.exit()
 
-            self.count = 0
-            self.idx_block = 0
-            self.is_block = True
-            self.data = bytearray()
+            self.data = bytearray() # Where the file to be stored.
 
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1)       # Send ACK.
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)         # Send 'C'.
@@ -185,7 +174,7 @@ class BluetoothFileTransfer:
                 else:
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
             await self.end_of_transfer(client)
-            self.save_file_raw(filename, self.data)
+            self.save_file_raw(filename)
 
     async def wait_until_data(self, client):
         i = 0
@@ -255,15 +244,17 @@ class BluetoothFileTransfer:
 
         return fit_files
 
-    def save_file_raw(self, name, data):
-        while data and data[-1] == 0x00:    # Remove padded zeros at the end.
-            data = data[:-1]
+    def save_file_raw(self, name):
+        mv_fit_data = memoryview(self.data)
+        i = -1
+        while self.data[i] == 0x00: # Remove padded zeros at the end.
+            i -= 1
         try:
             with open(name, "wb") as file:
-                file.write(data)
+                file.write(mv_fit_data[:i+1] if i < -1 else self.data)
             print(f"Successfully wrote combined data to {name}")
         except Exception as e:
-            print(f"Failed to decode/write data: {e}")
+            print(f"Failed to write file: {e}")
 
     def crc8_xor(self, data):
         '''
