@@ -115,9 +115,9 @@ class BluetoothFileTransfer:
         self.idx_block = 0
         self.is_block = True
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
-        await self.read_blocks_combine(client)
+        await self.read_block(client)
 
-    async def read_blocks_combine(self, client): # Blocks of n>=1 should be combined to obtain the file.
+    async def read_block(self, client): # Blocks of n>=1 should be combined to obtain the file.
         while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
@@ -168,7 +168,7 @@ class BluetoothFileTransfer:
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)         # Send 'C'.
 
             while self.is_block:                                                       # Receive EOT to exit this loop.
-                await self.read_blocks_combine(client)
+                await self.read_block(client)
                 if self.block_error:
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
                 else:
