@@ -21,7 +21,7 @@ This script allows you to:
 
 2. Check if your device and the PC are paired.
 
-3. Install python (of course).
+3. Install [python](https://www.python.org/) (of course).
 
 4. Install [bleak](https://pypi.org/project/bleak/):
 
@@ -29,7 +29,7 @@ This script allows you to:
 pip install bleak
 ```
 
-5. Download and run the scrip:
+5. Download and run the script:
 
 ```
 python xoss_sync.py
@@ -40,7 +40,7 @@ C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, a
 
 
 ## Limitation
-Though the script seems to work perfectly for my use case as shown above, there are possible limitations due mainly to the implementation
+The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
 of YMODEM in part as followings.
 
 - The script expects a transport with MTU of 23 byte, 128-byte fixed data in block, and CRC16/ARC (not CRC16/XMODEM).
