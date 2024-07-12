@@ -110,14 +110,14 @@ class BluetoothFileTransfer:
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_READ, 5.0)  # Send READ (0xff, 0x00, 0xff)
         await self.wait_until_data(client)                                     # Receive IDLE (0x04, 0x00, 0x04)
 
-    async def read_block_zero(self, client): # Block 0 consists of name and size of the file.
+    async def read_block_zero(self, client):
         self.count = 0
         self.idx_block = 0
         self.is_block = True
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
         await self.read_block(client)
 
-    async def read_block(self, client): # Blocks of n>=1 should be combined to obtain the file.
+    async def read_block(self, client):
         while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
             await asyncio.sleep(0.1)
         await asyncio.sleep(0.1)
@@ -140,7 +140,6 @@ class BluetoothFileTransfer:
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
         await self.wait_until_data(client)                                   # Receive IDLE (0x04, 0x00, 0x04)
 
-    # Function to fetch a file
     async def fetch_file(self, client, filename):
         # Request Read Permission
         await self.request_read_file(client)
@@ -152,7 +151,7 @@ class BluetoothFileTransfer:
         if self.notification_data == self.answer_array(filename):                              # Response starts with 0x06
             retries = 3
             while retries > 0:
-                await self.read_block_zero(client)
+                await self.read_block_zero(client) # Block 0 consists of name and size of the file.
                 if self.block_error:
                     retries -= 1
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
@@ -167,6 +166,7 @@ class BluetoothFileTransfer:
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1)       # Send ACK.
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)         # Send 'C'.
 
+            # Blocks of n>=1 should be combined to obtain the file.
             while self.is_block:                                                       # Receive EOT to exit this loop.
                 await self.read_block(client)
                 if self.block_error:
@@ -192,7 +192,7 @@ class BluetoothFileTransfer:
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)
         await self.wait_until_data(client)
         if self.crc8_xor(self.notification_data) == 0:
-            diskspace = self.notification_data[1:-1].decode('utf-8')  # Decode bytearray to string
+            diskspace = self.notification_data[1:-1].decode('utf-8')
             print(f"Free Diskspace: {diskspace}kb")
 
     async def run(self):
@@ -244,15 +244,15 @@ class BluetoothFileTransfer:
 
         return fit_files
 
-    def save_file_raw(self, name):
-        mv_fit_data = memoryview(self.data)
+    def save_file_raw(self, filename):
+        mv_file_data = memoryview(self.data)
         i = -1
         while self.data[i] == 0x00: # Remove padded zeros at the end.
             i -= 1
         try:
-            with open(name, "wb") as file:
-                file.write(mv_fit_data[:i+1] if i < -1 else self.data)
-            print(f"Successfully wrote combined data to {name}")
+            with open(filename, "wb") as file:
+                file.write(mv_file_data[:i+1] if i < -1 else self.data)
+            print(f"Successfully wrote combined data to {filename}")
         except Exception as e:
             print(f"Failed to write file: {e}")
 
