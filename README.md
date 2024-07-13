@@ -44,5 +44,9 @@ The script seems to work perfectly for my use case as shown above, but there are
 of YMODEM in part as followings.
 
 - The script expects a transport with MTU of 23, 128-byte data per block, and CRC16/ARC (not CRC16/XMODEM).  I am not sure
-if the SoC(seems to be 52832)/software in the XOSS device supports larger MTU nor 1024-byte data in YMODEM.
+if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU nor 1024-byte data in YMODEM(see, Notes 1).
 - Successive block numbers in YMODEM transport are not checked.
+
+## Notes
+1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/data size(128) with Win11 and Bluetooth 5.0 interface, 
+while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
