@@ -154,6 +154,9 @@ class BluetoothFileTransfer:
                 await self.read_block_zero(client) # Block 0 consists of name and size of the file.
                 if self.block_error:
                     retries -= 1
+                    self.is_block = False # Wait 0.2 s for garbage.
+                    await asyncio.sleep(0.2)
+                    self.is_block = True
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
                 else:
                     break
@@ -170,6 +173,9 @@ class BluetoothFileTransfer:
             while self.is_block:                                                       # Receive EOT to exit this loop.
                 await self.read_block(client)
                 if self.block_error:
+                    self.is_block = False # Wait 0.2 s for garbage.
+                    await asyncio.sleep(0.2)
+                    self.is_block = True
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
                 else:
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
