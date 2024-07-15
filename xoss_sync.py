@@ -127,15 +127,14 @@ class BluetoothFileTransfer:
             await asyncio.sleep(0.1), 
         try:
             await asyncio.wait_for(count_packets(self), timeout=10)
+            if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
+                print(f'Error in block {self.block_buf[1]}.')
+                self.block_error = True
+            else:
+                self.data.extend(self.block_data)                                # Omit headers/CRC16 and combine.
+                self.block_error = False
         except TimeoutError:
             self.block_error = True
-
-        if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
-            print(f'Error in block {self.block_buf[1]}.')
-            self.block_error = True
-        else:
-            self.data.extend(self.block_data)                                # Omit headers/CRC16 and combine.
-            self.block_error = False
         # Prepare for the next data block.
         self.idx_block = 0
         self.count = 0
