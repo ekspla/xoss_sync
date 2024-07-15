@@ -49,4 +49,4 @@ if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU
 
 ## Notes
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/data size(128) with Win11 and Bluetooth 5.1 interface, which always 
-request MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
+requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
