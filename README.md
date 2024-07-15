@@ -35,7 +35,7 @@ pip install bleak
 python xoss_sync.py
 ```
 
-Though I tested this only with XOSS G+ (gen1) and Windows10, combinations of the other XOSS device/OS might work.
+Though I tested this only with XOSS G+ (gen1) and Windows10/11, combinations of the other XOSS device/OS might work.
 C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 
