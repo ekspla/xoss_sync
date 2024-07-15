@@ -49,6 +49,7 @@ AWAIT_NEW_DATA = bytearray(b'AwaitNewData')
 class BluetoothFileTransfer:
     def __init__(self):
         self.data = bytearray()
+        self.data_size = 0
         self.count = 0
         self.notification_data = bytearray()
         self.is_block = False
@@ -164,6 +165,7 @@ class BluetoothFileTransfer:
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
                 sys.exit()
 
+            self.data_size = int(self.block_data.tobytes().rstrip(b'\x00').decode('utf-8').split()[1])
             self.data = bytearray() # Where the file to be stored.
 
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1)       # Send ACK.
@@ -255,10 +257,14 @@ class BluetoothFileTransfer:
         i = -1
         while self.data[i] == 0x00: # Remove padded zeros at the end.
             i -= 1
+
         try:
             with open(filename, "wb") as file:
-                file.write(mv_file_data[:i+1] if i < -1 else self.data)
-            print(f"Successfully wrote combined data to {filename}")
+                size = file.write(mv_file_data[:i+1] if i < -1 else self.data)
+            if size != self.data_size:
+                print(f"Error: {size}(file size) != {self.data_size}(spec)")
+            else:
+                print(f"Successfully wrote combined data to {filename}")
         except Exception as e:
             print(f"Failed to write file: {e}")
 
