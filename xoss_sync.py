@@ -141,9 +141,12 @@ class BluetoothFileTransfer:
         self.count = 0
 
     async def end_of_transfer(self, client):
+        # The first EOT was received already.
+        await asyncio.sleep(0.1) # This avoids NAK to be sent too fast.
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK.
-        await self.wait_until_data(client)                                   # Receive EOT.
+        await self.wait_until_data(client)                                   # Receive the second EOT.
+        await asyncio.sleep(0.1) # This avoids ACK to be sent too fast.
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
         await self.wait_until_data(client)                                   # Receive IDLE (0x04, 0x00, 0x04)
