@@ -190,6 +190,7 @@ class BluetoothFileTransfer:
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
                 else:
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
+                await asyncio.sleep(0.1)
             await self.end_of_transfer(client)
             self.save_file_raw(filename)
 
