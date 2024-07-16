@@ -11,13 +11,14 @@
 #
 # The main differences from Cycsync are:
 # 1. additions of crc8_xor and crc16_arc to check the data.
-# 2. use of slice assignment and memoryview in handling notification packets (to form a block in YMODEM protocol).
-# 3. tested with XOSS G+ instead of Cycplus M2.
-# 4. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
+# 2. check successive block numbers in YMODEM protocol.
+# 3. check size of the retrieved file. 
+# 4. use of slice assignment and memoryview in handling notification packets (to form the block).
+# 5. tested with XOSS G+ instead of Cycplus M2.
+# 6. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
 #
 # TODO:
-# 1. check successive block numbers for duplicates.
-# 2. handling of fit-file data more efficiently on memory.
+# 1. handling of fit-file data more efficiently on memory.
 
 import asyncio
 from bleak import BleakScanner, BleakClient
@@ -54,7 +55,8 @@ class BluetoothFileTransfer:
         self.notification_data = bytearray()
         self.is_block = False
         self.block_buf = bytearray(3 + 128 + 2)                                 # Header(SOH, block, ~block); data; CRC16
-        self.idx_block = 0
+        self.block_num = 0 # Block number(0-255).
+        self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
         self.block_data = self.mv_block_buf[3:-2]
         self.block_crc = self.mv_block_buf[-2:]
@@ -70,8 +72,8 @@ class BluetoothFileTransfer:
                 self.notification_data = data
             elif self.is_block:                                                 # Packets should be combined to make a block.
                 async with self.lock: # Use asyncio.Lock() for safety.
-                    self.block_buf[self.idx_block:self.idx_block + (len_data := len(data))] = data
-                    self.idx_block += len_data
+                    self.block_buf[self.idx_block_buf:self.idx_block_buf + (len_data := len(data))] = data
+                    self.idx_block_buf += len_data
                 self.count += 1
             else:
                 self.notification_data = data                                  # Other messages/responses.
@@ -115,8 +117,10 @@ class BluetoothFileTransfer:
 
     async def read_block_zero(self, client):
         self.count = 0
-        self.idx_block = 0
+        self.block_num = -1
+        self.idx_block_buf = 0
         self.is_block = True
+        self.block_error = False
         await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)      # Send 'C'.
         await self.read_block(client)
 
@@ -128,15 +132,19 @@ class BluetoothFileTransfer:
         try:
             await asyncio.wait_for(count_packets(self), timeout=10)
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
-                print(f'Error in block {self.block_buf[1]}.')
                 self.block_error = True
             else:
                 self.data.extend(self.block_data)                                # Omit headers/CRC16 and combine.
+                if self.block_buf[1] == (self.block_num + 1) % 256:
+                    if self.block_error: print(f'Fixed error in block{self.block_buf[1]}.')
+                else:
+                    print(f'Unexpected block: {self.block_num} -> {self.block_buf[1]}')
+                self.block_num = self.block_buf[1]
                 self.block_error = False
         except TimeoutError:
             self.block_error = True
         # Prepare for the next data block.
-        self.idx_block = 0
+        self.idx_block_buf = 0
         self.count = 0
 
     async def end_of_transfer(self, client):
