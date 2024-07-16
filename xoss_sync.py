@@ -49,24 +49,26 @@ AWAIT_NEW_DATA = bytearray(b'AwaitNewData')
 
 class BluetoothFileTransfer:
     def __init__(self):
-        self.data = bytearray()
-        self.data_size = 0
+        self.lock = asyncio.Lock()
+        # **Packet**
         self.count = 0
         self.notification_data = bytearray()
+        # **Block**
         self.is_block = False
-        self.block_buf = bytearray(3 + 128 + 2)                                 # Header(SOH, block, ~block); data; CRC16
+        self.block_buf = bytearray(3 + 128 + 2)                                 # Header(SOH, num, ~num); data; CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
         self.block_data = self.mv_block_buf[3:-2]
         self.block_crc = self.mv_block_buf[-2:]
         self.block_error = False
-        self.lock = asyncio.Lock()
+        # **File**                                                               A file is made of blocks; a block is made of packets.
+        self.data = bytearray()
+        self.data_size = 0
 
     def create_notification_handler(self):
         async def notification_handler(sender, data):
             ##print(data) # For test.
-
             if data == VALUE_EOT:                                               # Receive EOT.
                 self.is_block = False
                 self.notification_data = data
@@ -76,7 +78,7 @@ class BluetoothFileTransfer:
                     self.idx_block_buf += len_data
                 self.count += 1
             else:
-                self.notification_data = data                                  # Other messages/responses.
+                self.notification_data = data                                   # Other messages/responses.
 
         return notification_handler
 
@@ -134,7 +136,7 @@ class BluetoothFileTransfer:
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
                 self.block_error = True
             else:
-                self.data.extend(self.block_data)                                # Omit headers/CRC16 and combine.
+                self.data.extend(self.block_data)                                # Blocks should be combined to make a file.
                 if self.block_buf[1] == (self.block_num + 1) % 256:
                     if self.block_error: print(f'Fixed error in block{self.block_buf[1]}.')
                 else:
@@ -178,7 +180,7 @@ class BluetoothFileTransfer:
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
                 else:
                     break
-            if retries == 0:
+            if retries == 0: # Too many errors in reading block zero; cancel transport.
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
                 sys.exit()
 
@@ -188,7 +190,7 @@ class BluetoothFileTransfer:
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1)       # Send ACK.
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_C, 0.1)         # Send 'C'.
 
-            # Blocks of n>=1 should be combined to obtain the file.
+            # Blocks of num>=1 should be combined to obtain the file.
             while self.is_block:                                                       # Receive EOT to exit this loop.
                 await self.read_block(client)
                 if self.block_error:
@@ -215,8 +217,8 @@ class BluetoothFileTransfer:
         # Read Diskspace; e.g. bytearray(b'\n556/8104\x1e')
         self.notification_data = AWAIT_NEW_DATA
         self.is_block = False
-        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)
-        await self.wait_until_data(client)
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)      # Request starts with 0x09
+        await self.wait_until_data(client)                                              # Response starts with 0x0a(b'\n')
         if self.crc8_xor(self.notification_data) == 0:
             diskspace = self.notification_data[1:-1].decode('utf-8')
             print(f"Free Diskspace: {diskspace}kb")
@@ -232,13 +234,13 @@ class BluetoothFileTransfer:
                 ##print(f"MTU {client.mtu_size}")
 
                 await asyncio.sleep(5)
-                # Start Notification Services
                 await self.start_notify(client, CTL_CHARACTERISTIC_UUID)
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
                 print(f"Notifications started")
-                await self.read_diskspace(client)
-                await self.fetch_file(client, 'filelist.txt')
 
+                await self.read_diskspace(client)
+
+                await self.fetch_file(client, 'filelist.txt')
                 fit_files = self.extract_fit_filenames('filelist.txt')
 
                 for fit_file in fit_files:
@@ -276,18 +278,15 @@ class BluetoothFileTransfer:
         while self.data[i] == 0x00: # Remove padded zeros at the end.
             i -= 1
 
-        try:
-            with open(filename, "wb") as file:
-                size = file.write(mv_file_data[:i+1] if i < -1 else self.data)
-            if size != self.data_size:
-                print(f"Error: {size}(file size) != {self.data_size}(spec)")
-            else:
-                print(f"Successfully wrote combined data to {filename}")
-        except Exception as e:
-            print(f"Failed to write file: {e}")
+        with open(filename, "wb") as file:
+            size = file.write(mv_file_data[:i+1] if i < -1 else self.data)
+        if size != self.data_size:
+            print(f"Error: {size}(file size) != {self.data_size}(spec)")
+        else:
+            print(f"Successfully wrote combined data to {filename}")
 
     def crc8_xor(self, data):
-        '''
+        '''crc8/xor
         See request_array() and answer_array() how to use.
         '''
         crc = 0
@@ -297,7 +296,7 @@ class BluetoothFileTransfer:
 
     def crc16_arc(self, data):
         '''crc16/arc
-        Xoss uses CRC16/ARC instead of CRC16/XMODEM. 
+        XOSS uses CRC16/ARC instead of CRC16/XMODEM.
         '''
         crc = 0
         for x in data:
