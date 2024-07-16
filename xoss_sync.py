@@ -124,7 +124,7 @@ class BluetoothFileTransfer:
         async def count_packets(self):
             while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
                 await asyncio.sleep(0.1)
-            await asyncio.sleep(0.1), 
+            await asyncio.sleep(0.1)
         try:
             await asyncio.wait_for(count_packets(self), timeout=10)
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
