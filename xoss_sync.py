@@ -13,7 +13,7 @@
 # 1. additions of crc8_xor and crc16_arc to check the data.
 # 2. check successive block numbers in YMODEM protocol.
 # 3. check size of the retrieved file. 
-# 4. use of slice assignment and memoryview in handling notification packets (to form the block).
+# 4. use of slice assignment and memoryview in handling notification packets and blocks.
 # 5. tested with XOSS G+ instead of Cycplus M2.
 # 6. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
 #
