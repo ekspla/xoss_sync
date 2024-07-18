@@ -35,7 +35,7 @@ pip install bleak
 python xoss_sync.py
 ```
 
-Though I tested this only with XOSS G+ (gen1) and Windows10&11, combinations of the other XOSS device/OS might work.
+Though I tested this only with XOSS G+ (gen1) and Windows10 & 11, combinations of the other XOSS device/OS might work.
 C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 
@@ -44,8 +44,11 @@ The script seems to work perfectly for my use case as shown above, but there are
 of YMODEM in part as followings.
 
 - The script expects a transport with MTU of 23, 128-byte data per block, and CRC16/ARC (not CRC16/XMODEM).  I am not sure
-if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data in YMODEM(see, Notes 1).
+if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data in YMODEM (see, Notes 1 & 2).
 
 ## Notes
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
+
+2. The proprietary XOSS App on mobile phone seems to support larger MTU/data size by DLE (data length extension) and STX.  See, 
+for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
