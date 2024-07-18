@@ -33,9 +33,21 @@ CTL_CHARACTERISTIC_UUID = "6e400004-b5a3-f393-e0a9-e50e24dcca9e"
 TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
-VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09])          # Its response starts with 0x0a
-VALUE_STATUS = bytearray([0xff, 0x00, 0xff])
-#VALUE_IDLE = bytearray([0x04, 0x00, 0x04])
+#VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
+#VALUE_FILE_FETCH = bytearray([0x05]) # w
+#VALUE_OK_FILE_FETCH = bytearray([0x06]) # r
+#VALUE_FILE_SEND = bytearray([0x07]) # w
+#VALUE_OK_FILE_SEND = bytearray([0x08]) # r 
+VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09]) # w
+#VALUE_OK_DISKSPACE = bytearray([0x0a]) # r
+#VALUE_STOP = bytearray([0x1f, 0x00, 0x1f]) # w
+#VALUE_ERR_CMD = bytearray([0x11, 0x00, 0x11]) # r
+#VALUE_ERR_FILE_NA = bytearray([0x12]) # r
+#VALUE_ERR_MEMORY = bytearray([0x13, 0x00, 0x13]) # r
+#VALUE_ERR_NO_IDLE = bytearray([0x14, 0x00, 0x14]) # r
+#VALUE_ERR_FILE_PARSE = bytearray([0x15]) # r
+VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
+
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
 #VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
 VALUE_C = bytearray([0x43])                               # 'C'
