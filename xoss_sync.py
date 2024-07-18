@@ -34,8 +34,8 @@ TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
 #VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
-#VALUE_FILE_FETCH = bytearray([0x05]) # w
-#VALUE_OK_FILE_FETCH = bytearray([0x06]) # r
+VALUE_FILE_FETCH = bytearray([0x05]) # w
+VALUE_OK_FILE_FETCH = bytearray([0x06]) # r
 #VALUE_FILE_SEND = bytearray([0x07]) # w
 #VALUE_OK_FILE_SEND = bytearray([0x08]) # r 
 VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09]) # w
@@ -320,12 +320,12 @@ class BluetoothFileTransfer:
         return crc & 0xffff
 
     def request_array(self, string):
-        byte_array = bytearray([0x05]) + bytearray(string, 'utf-8') + bytearray([0x00])
+        byte_array = VALUE_FILE_FETCH + bytearray(string, 'utf-8') + bytearray([0x00])
         byte_array[-1] = self.crc8_xor(byte_array)    # Replace the padded zero with crc8_xor.
         return byte_array
 
     def answer_array(self, string):
-        byte_array = bytearray([0x06]) + bytearray(string, 'utf-8') + bytearray([0x00])
+        byte_array = VALUE_OK_FILE_FETCH + bytearray(string, 'utf-8') + bytearray([0x00])
         byte_array[-1] = self.crc8_xor(byte_array)    # Replace the padded zero with crc8_xor.
         return byte_array
 
