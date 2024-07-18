@@ -80,5 +80,5 @@ if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
 
-2. The proprietary XOSS App on mobile phone seems to support larger MTU/data size by DLE (data length extension) and STX.  See, 
+2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/data size by DLE (data length extension) and STX.  See, 
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
