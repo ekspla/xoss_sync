@@ -34,20 +34,20 @@ TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
 #VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
-VALUE_FILE_FETCH = bytearray([0x05]) # w
-VALUE_OK_FILE_FETCH = bytearray([0x06]) # r
-#VALUE_FILE_SEND = bytearray([0x07]) # w
-#VALUE_OK_FILE_SEND = bytearray([0x08]) # r 
+FILE_FETCH = bytearray([0x05]) # w
+OK_FILE_FETCH = bytearray([0x06]) # r
+#FILE_SEND = bytearray([0x07]) # w
+#OK_FILE_SEND = bytearray([0x08]) # r 
 VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09]) # w
-#VALUE_OK_DISKSPACE = bytearray([0x0a]) # r
-#VALUE_FILE_DELETE = bytearray([0x0d]) # w
-#VALUE_OK_FILE_DELETE = bytearray([0x0e]) # r
+OK_DISKSPACE = bytearray([0x0a]) # r
+#FILE_DELETE = bytearray([0x0d]) # w
+#OK_FILE_DELETE = bytearray([0x0e]) # r
 #VALUE_STOP = bytearray([0x1f, 0x00, 0x1f]) # w
 #VALUE_ERR_CMD = bytearray([0x11, 0x00, 0x11]) # r
-#VALUE_ERR_FILE_NA = bytearray([0x12]) # r
+#ERR_FILE_NA = bytearray([0x12]) # r
 #VALUE_ERR_MEMORY = bytearray([0x13, 0x00, 0x13]) # r
 #VALUE_ERR_NO_IDLE = bytearray([0x14, 0x00, 0x14]) # r
-#VALUE_ERR_FILE_PARSE = bytearray([0x15]) # r
+#ERR_FILE_PARSE = bytearray([0x15]) # r
 VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
 
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
@@ -178,10 +178,11 @@ class BluetoothFileTransfer:
         await self.get_status(client)
         # Request the File
         self.notification_data = AWAIT_NEW_DATA
-        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, self.request_array(filename), 0.1) # Request starts with 0x05
+        value_file_fetch = self.make_command(FILE_FETCH, filename)
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, value_file_fetch, 0.1) # Request starts with 0x05
         await self.wait_until_data(client)
 
-        if self.notification_data == self.answer_array(filename):                              # Response starts with 0x06
+        if self.notification_data == self.make_command(OK_FILE_FETCH, filename):    # Response starts with 0x06
             retries = 3
             while retries > 0:
                 await self.read_block_zero(client) # Block 0 consists of name and size of the file.
@@ -232,7 +233,8 @@ class BluetoothFileTransfer:
         self.is_block = False
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)      # Request starts with 0x09
         await self.wait_until_data(client)                                              # Response starts with 0x0a(b'\n')
-        if self.crc8_xor(self.notification_data) == 0:
+        if (self.crc8_xor(self.notification_data) == 0 and 
+            self.notification_data[0] == OK_DISKSPACE[0]):
             diskspace = self.notification_data[1:-1].decode('utf-8')
             print(f"Free Diskspace: {diskspace}kb")
 
@@ -321,14 +323,9 @@ class BluetoothFileTransfer:
                     crc = crc >> 1
         return crc & 0xffff
 
-    def request_array(self, string):
-        byte_array = VALUE_FILE_FETCH + bytearray(string, 'utf-8') + bytearray([0x00])
-        byte_array[-1] = self.crc8_xor(byte_array)    # Replace the padded zero with crc8_xor.
-        return byte_array
-
-    def answer_array(self, string):
-        byte_array = VALUE_OK_FILE_FETCH + bytearray(string, 'utf-8') + bytearray([0x00])
-        byte_array[-1] = self.crc8_xor(byte_array)    # Replace the padded zero with crc8_xor.
+    def make_command(self, cmd, string=None):
+        byte_array = cmd + bytearray(string.encode('utf-8') if string is not None else b'\x00') + bytearray([0x00])
+        byte_array[-1] = self.crc8_xor(byte_array) # Replace the padded zero with crc8_xor.
         return byte_array
 
 
