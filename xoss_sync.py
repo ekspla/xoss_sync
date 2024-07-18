@@ -234,7 +234,7 @@ class BluetoothFileTransfer:
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_DISKSPACE, 0.1)      # Request starts with 0x09
         await self.wait_until_data(client)                                              # Response starts with 0x0a(b'\n')
         if (self.crc8_xor(self.notification_data) == 0 and 
-            self.notification_data[0] == OK_DISKSPACE[0]):
+            self.notification_data.startswith(OK_DISKSPACE)):
             diskspace = self.notification_data[1:-1].decode('utf-8')
             print(f"Free Diskspace: {diskspace}kb")
 
