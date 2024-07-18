@@ -34,7 +34,7 @@ TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
 VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09])          # Its response starts with 0x0a
-VALUE_READ = bytearray([0xff, 0x00, 0xff])
+VALUE_STATUS = bytearray([0xff, 0x00, 0xff])
 #VALUE_IDLE = bytearray([0x04, 0x00, 0x04])
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
 #VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
@@ -111,10 +111,10 @@ class BluetoothFileTransfer:
             print(f"Failed to write value to characteristic: {e}")
         await asyncio.sleep(delay)
 
-    async def request_read_file(self, client):
+    async def get_status(self, client):
         self.notification_data = AWAIT_NEW_DATA
         self.is_block = False
-        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_READ, 5.0)  # Send READ (0xff, 0x00, 0xff)
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_STATUS, 5.0)  # Send STATUS (0xff, 0x00, 0xff)
         await self.wait_until_data(client)                                     # Receive IDLE (0x04, 0x00, 0x04)
 
     async def read_block_zero(self, client):
@@ -161,8 +161,7 @@ class BluetoothFileTransfer:
         await self.wait_until_data(client)                                   # Receive IDLE (0x04, 0x00, 0x04)
 
     async def fetch_file(self, client, filename):
-        # Request Read Permission
-        await self.request_read_file(client)
+        await self.get_status(client)
         # Request the File
         self.notification_data = AWAIT_NEW_DATA
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, self.request_array(filename), 0.1) # Request starts with 0x05
