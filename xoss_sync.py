@@ -33,7 +33,7 @@ CTL_CHARACTERISTIC_UUID = "6e400004-b5a3-f393-e0a9-e50e24dcca9e"
 TX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
-#VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
+VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
 FILE_FETCH = bytearray([0x05]) # w
 OK_FILE_FETCH = bytearray([0x06]) # r
 #FILE_SEND = bytearray([0x07]) # w
@@ -129,7 +129,16 @@ class BluetoothFileTransfer:
         self.notification_data = AWAIT_NEW_DATA
         self.is_block = False
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_STATUS, 5.0)  # Send STATUS (0xff, 0x00, 0xff)
-        await self.wait_until_data(client)                                     # Receive IDLE (0x04, 0x00, 0x04)
+        await self.wait_until_data(client)
+        if self.notification_data == VALUE_IDLE:                                  # Receive IDLE (0x04, 0x00, 0x04)
+            return False
+        if self.notification_data == AWAIT_NEW_DATA:                              # Timeout; No response
+            await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_IDLE, 0.1) # Send IDLE (0x04, 0x00, 0x04)
+            await self.wait_until_data(client)
+            if self.notification_data == VALUE_IDLE:                              # Receive IDLE (0x04, 0x00, 0x04)
+                return False
+        print(f'Error: {self.notification_data}')
+        return True
 
     async def read_block_zero(self, client):
         self.count = 0
@@ -175,7 +184,7 @@ class BluetoothFileTransfer:
         await self.wait_until_data(client)                                   # Receive IDLE (0x04, 0x00, 0x04)
 
     async def fetch_file(self, client, filename):
-        await self.get_status(client)
+        if await self.get_status(client): return
         # Request the File
         self.notification_data = AWAIT_NEW_DATA
         value_file_fetch = self.make_command(FILE_FETCH, filename)
