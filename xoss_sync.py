@@ -302,7 +302,7 @@ class BluetoothFileTransfer:
 
     def crc8_xor(self, data):
         '''crc8/xor
-        See request_array() and answer_array() how to use.
+        See make_command() how to use.
         '''
         crc = 0
         for x in data:
