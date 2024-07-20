@@ -125,20 +125,20 @@ class BluetoothFileTransfer:
             print(f"Failed to write value to characteristic: {e}")
         await asyncio.sleep(delay)
 
-    async def get_status(self, client):
+    async def get_idle_status(self, client):
         self.notification_data = AWAIT_NEW_DATA
         self.is_block = False
         await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_STATUS, 5.0)  # Send STATUS (0xff, 0x00, 0xff)
         await self.wait_until_data(client)
         if self.notification_data == VALUE_IDLE:                                  # Receive IDLE (0x04, 0x00, 0x04)
-            return False
+            return True
         if self.notification_data == AWAIT_NEW_DATA:                              # Timeout; No response
             await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, VALUE_IDLE, 0.1) # Send IDLE (0x04, 0x00, 0x04)
             await self.wait_until_data(client)
             if self.notification_data == VALUE_IDLE:                              # Receive IDLE (0x04, 0x00, 0x04)
-                return False
+                return True
         print(f'Error: {self.notification_data}')
-        return True
+        return False
 
     async def read_block_zero(self, client):
         self.count = 0
@@ -184,7 +184,8 @@ class BluetoothFileTransfer:
         await self.wait_until_data(client)                                   # Receive IDLE (0x04, 0x00, 0x04)
 
     async def fetch_file(self, client, filename):
-        if await self.get_status(client): return
+        if self.notification_data != VALUE_IDLE:
+            if not await self.get_idle_status(client): return
         # Request the File
         self.notification_data = AWAIT_NEW_DATA
         value_file_fetch = self.make_command(FILE_FETCH, filename)
