@@ -88,7 +88,7 @@ class BluetoothFileTransfer:
                 self.notification_data = data
             elif self.is_block:                                                 # Packets should be combined to make a block.
                 async with self.lock: # Use asyncio.Lock() for safety.
-                    self.block_buf[self.idx_block_buf:self.idx_block_buf + (len_data := len(data))] = data
+                    self.mv_block_buf[self.idx_block_buf:self.idx_block_buf + (len_data := len(data))] = data
                     self.idx_block_buf += len_data
                 self.count += 1
             else:
