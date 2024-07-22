@@ -65,7 +65,6 @@ class BluetoothFileTransfer:
     def __init__(self):
         self.lock = asyncio.Lock()
         # **Packet**
-        self.count = 0
         self.notification_data = bytearray()
         # **Block**
         self.is_block = False
@@ -90,7 +89,6 @@ class BluetoothFileTransfer:
                 async with self.lock: # Use asyncio.Lock() for safety.
                     self.mv_block_buf[self.idx_block_buf:self.idx_block_buf + (len_data := len(data))] = data
                     self.idx_block_buf += len_data
-                self.count += 1
             else:
                 self.notification_data = data                                   # Other messages/responses.
 
@@ -141,7 +139,6 @@ class BluetoothFileTransfer:
         return False
 
     async def read_block_zero(self, client):
-        self.count = 0
         self.block_num = -1
         self.idx_block_buf = 0
         self.is_block = True
@@ -150,12 +147,12 @@ class BluetoothFileTransfer:
         await self.read_block(client)
 
     async def read_block(self, client):
-        async def count_packets(self):
-            while self.count <= 5: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
+        async def check_block_buf(self):
+            while self.idx_block_buf <= 120: # 20(MTU=23) * 6(packets) = 120 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
                 await asyncio.sleep(0.1)
             await asyncio.sleep(0.1)
         try:
-            await asyncio.wait_for(count_packets(self), timeout=10)
+            await asyncio.wait_for(check_block_buf(self), timeout=10)
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
                 self.block_error = True
             else:
@@ -170,7 +167,6 @@ class BluetoothFileTransfer:
             self.block_error = True
         # Prepare for the next data block.
         self.idx_block_buf = 0
-        self.count = 0
 
     async def end_of_transfer(self, client):
         # The first EOT was received already.
