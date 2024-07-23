@@ -289,7 +289,6 @@ class BluetoothFileTransfer:
                         fit_files.add(match.group(0))
         except Exception as e:
             print(f"Failed to read/parse file: {e}")
-            sys.exit()
 
         return fit_files
 
