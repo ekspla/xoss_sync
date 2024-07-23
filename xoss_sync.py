@@ -23,7 +23,6 @@
 import asyncio
 from bleak import BleakScanner, BleakClient
 import re
-import sys
 import os
 
 #TARGET_NAME = "XOSS G-040989"
@@ -202,7 +201,7 @@ class BluetoothFileTransfer:
                     break
             if retries == 0: # Too many errors in reading block zero; cancel transport.
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
-                sys.exit()
+                return
 
             self.data_size = int(self.block_data.tobytes().rstrip(b'\x00').decode('utf-8').split()[1])
             self.data = bytearray() # Where the file to be stored.
