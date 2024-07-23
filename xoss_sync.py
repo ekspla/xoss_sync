@@ -337,4 +337,7 @@ class BluetoothFileTransfer:
 
 if __name__ == "__main__":
     transfer = BluetoothFileTransfer()
-    asyncio.run(transfer.run())
+    try:
+        asyncio.run(transfer.run())
+    finally:
+        asyncio.new_event_loop() # Clear retained state.
