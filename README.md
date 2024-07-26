@@ -3,7 +3,7 @@ A python (CPython and Micropython) code to fetch fit files from XOSS G+ cyclo-co
 
 (C) 2024 [ekspla](https://github.com/ekspla/xoss_sync)
 
-A quick/preliminary version of code for use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss).
+A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss).
 
 This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
