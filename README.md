@@ -7,8 +7,8 @@ A quick/preliminary version of code for use with XOSS G+ GPS cyclo-computer, ins
 
 This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-The PC version (xoss_sync.py) was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2 
-while the Micropython (MPY) version (mpy_xoss_sync.py) with MPY-1.23.0 on ESP32-WROOM-32E, SD card, and aioble.
+**The PC version (xoss_sync.py)** was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2 
+while **the Micropython (MPY) version (mpy_xoss_sync.py)** with MPY-1.23.0 on ESP32-WROOM-32E, SD card, and aioble.
 
 ## Features
 This script allows you to:
