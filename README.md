@@ -7,7 +7,8 @@ A quick/preliminary version of code for use with XOSS G+ GPS cyclo-computer, ins
 
 This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-The code shown here was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2.
+The PC version (xoss_sync.py) was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2 
+while the Micropython (MPY) version (mpy_xoss_sync.py) with MPY-1.23.0 on ESP32-WROOM-32E, SD card, and aioble.
 
 ## Features
 This script allows you to:
@@ -16,7 +17,7 @@ This script allows you to:
 - Download data (in FIT fromat) from your device
 - See free/usage of storage in your device
 
-## Usage
+## Usage (PC version)
 1. Install bluetooth low energy interface/driver software on your PC.
 
 2. Check if your device and the PC are paired.
@@ -68,6 +69,26 @@ D:\backup\Bicycle\XOSS\python>
 Though I tested this only with XOSS G+ (gen1) and Windows10 & 11, combinations of the other XOSS device/OS might work.
 C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
+
+## Usage (Micropython version)
+1. Install SD card/interface on your ESP32 board.
+
+2. Install [Micropython](https://micropython.org/) (of course).
+
+3. Install [aioble](https://github.com/micropython/micropython-lib/tree/master/micropython/bluetooth/aioble):
+
+```
+mpremote mip install aioble
+```
+
+4. Download/install and run the script 
+
+``` python
+>>> import mpy_xoss_sync
+>>> mpy_xoss_sync.start()
+```
+
+Though it works as PC version, this is an adhoc implementation to MPY; still work-in-progress. 
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
