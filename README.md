@@ -88,7 +88,7 @@ mpremote mip install aioble
 >>> mpy_xoss_sync.start()
 ```
 
-Though it works as PC version, this is an adhoc implementation to MPY; still work-in-progress. 
+Though it works well as PC version, this is an adhoc implementation to MPY; still work-in-progress. 
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
