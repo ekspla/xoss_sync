@@ -29,6 +29,7 @@ import aioble
 import bluetooth
 import re
 import os
+import gc
 from collections import deque
 
 
@@ -244,6 +245,7 @@ class BluetoothFileTransfer:
             self.data_written = 0
             while self.is_block:                                                              # Receive EOT to exit this loop.
                 await self.read_block()
+                if self.block_num % 128 == 64: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
                     await self.send_cmd(self.rx_characteristic, VALUE_NAK, 100)              # Send NAK on error.
@@ -256,6 +258,7 @@ class BluetoothFileTransfer:
                 print(f"Error: {self.data_written}(file size) != {self.data_size}(spec)")
             else:
                 print(f"Successfully wrote combined data to {filename}")
+            gc.collect()
 
     async def wait_until_data(self, char):
         try:
