@@ -206,17 +206,18 @@ class BluetoothFileTransfer:
         await self.send_cmd(self.rx_characteristic, VALUE_ACK, 100) # Send ACK.
         await self.wait_until_data(self.ctl_characteristic)                                   # Receive IDLE (0x04, 0x00, 0x04)
 
-    async def fetch_file(self):
+    async def fetch_file(self, filename):
         if self.notification_data != VALUE_IDLE:
             if not await self.get_idle_status(): return
         # Request the File
+        self.filename = filename
         self.notification_data = AWAIT_NEW_DATA
-        value_file_fetch = self.make_command(FILE_FETCH, self.filename)
+        value_file_fetch = self.make_command(FILE_FETCH, filename)
         await self.send_cmd(self.ctl_characteristic, value_file_fetch, 100)                   # Request starts with 0x05
         await self.wait_until_data(self.ctl_characteristic)
 
-        if self.notification_data == self.make_command(OK_FILE_FETCH, self.filename):         # Response starts with 0x06
-            self.is_write_mode = False
+        if self.notification_data == self.make_command(OK_FILE_FETCH, filename):              # Response starts with 0x06
+            self.is_write_mode = False                                                         # Do not write block 0
             notify_handler_task = asyncio.create_task(self.notify_handler())
             await asyncio.sleep(1)
             retries = 3
@@ -254,7 +255,7 @@ class BluetoothFileTransfer:
             if self.data_written != self.data_size:
                 print(f"Error: {self.data_written}(file size) != {self.data_size}(spec)")
             else:
-                print(f"Successfully wrote combined data to {self.filename}")
+                print(f"Successfully wrote combined data to {filename}")
 
     async def wait_until_data(self, char):
         try:
@@ -300,8 +301,7 @@ class BluetoothFileTransfer:
 
             if 'filelist.txt' in os.listdir('/sd'):
                 os.rename('/sd/filelist.txt', '/sd/filelist.old')
-            self.filename = 'filelist.txt'
-            await self.fetch_file()
+            await self.fetch_file('filelist.txt')
             fit_files = self.extract_fit_filenames('/sd/filelist.txt')
 
             for fit_file in fit_files:
@@ -309,8 +309,7 @@ class BluetoothFileTransfer:
                     print(f'Skip: {fit_file}')
                 else:
                     print(f"Retrieving {fit_file}")
-                    self.filename = fit_file
-                    await self.fetch_file()
+                    await self.fetch_file(fit_file)
 
     def extract_fit_filenames(self, file_path):
         fit_files = set()
