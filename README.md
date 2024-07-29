@@ -88,7 +88,7 @@ mpremote mip install aioble
 >>> mpy_xoss_sync.start()
 ```
 
-Though it works well as PC version, this is an adhoc implementation to MPY; still work-in-progress. 
+Though it works well as PC version, this is an adhoc implementation to MPY/aioble; still work-in-progress (see Note 3). 
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
@@ -103,3 +103,8 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/data size by DLE (data length extension) and STX.  See, 
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
+
+3. While there is alomost no packet loss seen in the PC/bleak version, a packet loss of 0.13 % (typ.) was observed in the current 
+(as of 29 Jul. 2024) MPY version using MPY-1.23.0 ESP32_GENERIC/aioble.  The loss of packet, which results in an error in a block 
+of YMODEM protocol, is always compensated for thanks to the protocol.  I do not see significant improvement in the loss by 
+increasing the cpu frequency to 240 MHz, suggesting there is something to do with the software.
