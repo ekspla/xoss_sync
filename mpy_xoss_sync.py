@@ -127,7 +127,7 @@ class BluetoothFileTransfer:
         ##async with aioble.scan(5000, interval_us=30000, window_us=30000, active=True) as scanner:
         async with aioble.scan(duration_ms=20_000, interval_us=30000, window_us=30000, active=True) as scanner:
             async for result in scanner:
-                # See if it matches our name and the environmental sensing service.
+                # See if it matches target_name.
                 ##print(result.name(), result.device)
                 if (name := result.name()) is not None and target_name in name:
                     print(f"Found target device: {name} - {result.device}")
@@ -245,7 +245,7 @@ class BluetoothFileTransfer:
             self.data_written = 0
             while self.is_block:                                                              # Receive EOT to exit this loop.
                 await self.read_block()
-                if self.block_num % 128 == 64: gc.collect()
+                if self.block_num % 128 == 0: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
                     await self.send_cmd(self.rx_characteristic, VALUE_NAK, 100)              # Send NAK on error.
