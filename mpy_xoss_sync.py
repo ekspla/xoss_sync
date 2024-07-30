@@ -346,9 +346,10 @@ class BluetoothFileTransfer:
         '''crc16/arc
         XOSS uses CRC16/ARC instead of CRC16/XMODEM.
         '''
+        table = CRC16_ARC_TBL
         crc = 0
         for x in data:
-            crc = (crc >> 8) ^ CRC16_ARC_TBL[(crc ^ x) & 0xff];
+            crc = (crc >> 8) ^ table[(crc ^ x) & 0xff]
         return crc
 
     def make_command(self, cmd, string=None):
