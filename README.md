@@ -105,6 +105,6 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 3. While there is alomost no packet loss seen in the PC/bleak version, a packet loss of 0.13 % (typ.) was observed in the current 
-(as of 29 Jul. 2024) MPY version using MPY-1.23.0 ESP32_GENERIC/aioble.  The loss of packet, which results in an error in a block 
-of YMODEM protocol, is always compensated for thanks to the protocol.  I do not see significant improvement in the loss by 
-increasing the cpu frequency to 240 MHz, suggesting there is something to do with the software.
+(as of 29 Jul. 2024) MPY version using MPY-1.23.0/ESP32_GENERIC/aioble.  The loss of packet, which results in an error in a block 
+of YMODEM protocol, is always compensated for thanks to the protocol.  I do not see significant reduction of the loss by 
+increasing the cpu frequency from 160 to 240 MHz, suggesting there is something to do with the software.
