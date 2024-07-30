@@ -15,9 +15,7 @@
 # 6. timings/delays were adjusted for my use case (XOSS G+, Micropython-1.23.0 on ESP32-WROOM-32E with SD card, and aioble).
 #
 # TODO:
-# 1. handling of fit-file data more efficiently on memory.
-# 2. some brush-up, esp. in handling notify packets from aioble.
-# 3. still room to optimize timings/delays.
+# 1. some brush-up, esp. in handling notify packets from aioble.
 
 import sys
 
