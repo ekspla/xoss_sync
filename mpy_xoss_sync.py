@@ -43,7 +43,7 @@ VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
 FILE_FETCH = bytearray([0x05]) # w
 OK_FILE_FETCH = bytearray([0x06]) # r
 #FILE_SEND = bytearray([0x07]) # w
-#OK_FILE_SEND = bytearray([0x08]) # r 
+#OK_FILE_SEND = bytearray([0x08]) # r
 VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09]) # w
 OK_DISKSPACE = bytearray([0x0a]) # r
 #FILE_DELETE = bytearray([0x0d]) # w
@@ -90,6 +90,10 @@ class BluetoothFileTransfer:
         self.data_written = 0
         self.filename = ''
         self.is_write_mode = False
+        self.write_buf = bytearray(self.block_data_size * 4)
+        self.mv_write_buf = memoryview(self.write_buf)
+        self.write_buf_page = tuple(self.mv_write_buf[i*self.block_data_size:(i+1)*self.block_data_size] for i in range(4))
+        self.idx_write_buf = 0
 
     async def notify_handler(self):
         _EOT = bytes(VALUE_EOT)
@@ -167,6 +171,21 @@ class BluetoothFileTransfer:
             while self.idx_block_buf < 113: # 133 bytes - 1 packet * 20(MTU=23) = 113 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
                 await asyncio.sleep_ms(100)
             await asyncio.sleep_ms(100)
+
+        def write_to_buf(data):
+            self.write_buf_page[self.idx_write_buf][:] = data
+            self.idx_write_buf += 1
+            if self.idx_write_buf == 4:
+                self.save_chunk_raw(self.write_buf)
+                self.idx_write_buf = 0
+            elif (self.data_written + self.block_data_size) == self.data_size:
+                flush_write_buf()
+            return self.block_data_size
+
+        def flush_write_buf():
+            self.save_chunk_raw(self.mv_write_buf[:self.idx_write_buf * self.block_data_size])
+            self.idx_write_buf = 0
+
         try:
             await asyncio.wait_for(check_block_buf(), timeout=10)
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
@@ -174,8 +193,9 @@ class BluetoothFileTransfer:
             else:
                 if self.is_write_mode:                                                    # Blocks should be combined to make a file.
                     if (self.data_written + self.block_data_size) <= self.data_size:
-                        self.data_written += self.save_chunk_raw(self.block_data)
+                        self.data_written += write_to_buf(self.block_data)
                     else:
+                        if self.idx_write_buf > 0: flush_write_buf()
                         mv_block_data = memoryview(self.block_data)
                         i = -1
                         while self.block_data[i] == 0x00: # Remove padded zeros at the end.
@@ -239,6 +259,7 @@ class BluetoothFileTransfer:
             # Blocks of num>=1 should be combined to obtain the file.
             self.is_write_mode = True
             self.data_written = 0
+            self.idx_write_buf = 0
             while self.is_block:                                                              # Receive EOT to exit this loop.
                 await self.read_block()
                 if self.block_num % 128 == 0: gc.collect()
