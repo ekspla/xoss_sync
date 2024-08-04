@@ -188,6 +188,7 @@ class BluetoothFileTransfer:
 
         try:
             await asyncio.wait_for(check_block_buf(), timeout=10)
+            if not self.is_block: return # The 1st EOT may arrive very late.
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
                 self.block_error = True
             else:
@@ -262,6 +263,7 @@ class BluetoothFileTransfer:
             self.idx_write_buf = 0
             while self.is_block:                                                              # Receive EOT to exit this loop.
                 await self.read_block()
+                if not self.is_block: break # The 1st EOT may arrive very late.
                 if self.block_num % 128 == 0: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
