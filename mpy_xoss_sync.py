@@ -168,9 +168,9 @@ class BluetoothFileTransfer:
 
     async def read_block(self):
         async def check_block_buf():
-            while self.idx_block_buf < 113: # 133 bytes - 1 packet * 20(MTU=23) = 113 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
-                await asyncio.sleep_ms(100)
-            await asyncio.sleep_ms(100)
+            while self.is_block and self.idx_block_buf < 113: # 133 bytes - 1 packet * 20(MTU=23) = 113 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
+                await asyncio.sleep_ms(10)
+            await asyncio.sleep_ms(10)
 
         def write_to_buf(data):
             self.write_buf_page[self.idx_write_buf][:] = data
@@ -267,10 +267,10 @@ class BluetoothFileTransfer:
                 if self.block_num % 128 == 0: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
-                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 100)              # Send NAK on error.
+                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 80)              # Send NAK on error.
                 else:
-                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 100)              # Send ACK.
-                await asyncio.sleep_ms(100)
+                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 80)              # Send ACK.
+                await asyncio.sleep_ms(80)
             await self.end_of_transfer()
             notify_handler_task.cancel()
             if self.data_written != self.data_size:
