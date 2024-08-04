@@ -29,6 +29,7 @@ import re
 import os
 import gc
 from collections import deque
+from array import array
 
 
 #_TARGET_NAME = "XOSS G-040989"
@@ -342,14 +343,19 @@ class BluetoothFileTransfer:
             crc ^= x
         return crc & 0xff
 
-    def crc16_arc(self, data):
+    @micropython.viper
+    def crc16_arc(self, byte_array) -> int:
         '''crc16/arc
         XOSS uses CRC16/ARC instead of CRC16/XMODEM.
         '''
-        table = CRC16_ARC_TBL
-        crc = 0
-        for x in data:
-            crc = (crc >> 8) ^ table[(crc ^ x) & 0xff]
+        crc: int = 0
+        data = ptr8(byte_array)
+        length = int(len(byte_array))
+        table = ptr16(CRC16_ARC_TBL)
+        i: int = 0
+        while i < length:
+            crc = (crc >> 8) ^ table[(crc ^ data[i]) & 0xff]
+            i += 1
         return crc
 
     def make_command(self, cmd, string=None):
@@ -357,7 +363,7 @@ class BluetoothFileTransfer:
         byte_array[-1] = self.crc8_xor(byte_array) # Replace the padded zero with crc8_xor.
         return byte_array
 
-CRC16_ARC_TBL = (
+CRC16_ARC_TBL = array("H", (
     0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
     0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
     0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
@@ -390,7 +396,7 @@ CRC16_ARC_TBL = (
     0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,
     0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
-    )
+    ))
 
 
 def start():
