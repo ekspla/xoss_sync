@@ -36,7 +36,7 @@ VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
 FILE_FETCH = bytearray([0x05]) # w
 OK_FILE_FETCH = bytearray([0x06]) # r
 #FILE_SEND = bytearray([0x07]) # w
-#OK_FILE_SEND = bytearray([0x08]) # r 
+#OK_FILE_SEND = bytearray([0x08]) # r
 VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09]) # w
 OK_DISKSPACE = bytearray([0x0a]) # r
 #FILE_DELETE = bytearray([0x0d]) # w
@@ -146,12 +146,13 @@ class BluetoothFileTransfer:
         await self.read_block(client)
 
     async def read_block(self, client):
-        async def check_block_buf(self):
-            while self.idx_block_buf < 113: # 133 bytes - 1 packet * 20(MTU=23) = 113 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
-                await asyncio.sleep(0.1)
-            await asyncio.sleep(0.1)
+        async def check_block_buf():
+            while self.is_block and self.idx_block_buf < 133: # c.f. 1+1+1+128+2=133 bytes (one block)
+                await asyncio.sleep(0.01)
+
         try:
-            await asyncio.wait_for(check_block_buf(self), timeout=10)
+            await asyncio.wait_for(check_block_buf(), timeout=10)
+            if not self.is_block: return # The 1st EOT may arrive very late.
             if int.from_bytes(self.block_crc, 'big') != self.crc16_arc(self.block_data):
                 self.block_error = True
             else:
@@ -162,7 +163,7 @@ class BluetoothFileTransfer:
                     print(f'Unexpected block: {self.block_num} -> {self.block_buf[1]}')
                 self.block_num = self.block_buf[1]
                 self.block_error = False
-        except TimeoutError:
+        except asyncio.TimeoutError:
             self.block_error = True
         # Prepare for the next data block.
         self.idx_block_buf = 0
@@ -212,14 +213,15 @@ class BluetoothFileTransfer:
             # Blocks of num>=1 should be combined to obtain the file.
             while self.is_block:                                                       # Receive EOT to exit this loop.
                 await self.read_block(client)
+                if not self.is_block: break # The 1st EOT may arrive very late.
                 if self.block_error:
                     self.is_block = False # Wait 0.2 s for garbage.
                     await asyncio.sleep(0.2)
                     self.is_block = True
-                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.08) # Send NAK on error.
                 else:
-                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
-                await asyncio.sleep(0.1)
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.08) # Send ACK.
+                await asyncio.sleep(0.08)
             await self.end_of_transfer(client)
             self.save_file_raw(filename)
 
@@ -253,7 +255,6 @@ class BluetoothFileTransfer:
                 print(f"Connected to {device.name}")
                 ##print(f"MTU {client.mtu_size}")
 
-                await asyncio.sleep(5)
                 await self.start_notify(client, CTL_CHARACTERISTIC_UUID)
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
                 print(f"Notifications started")
