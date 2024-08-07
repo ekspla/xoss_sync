@@ -168,9 +168,8 @@ class BluetoothFileTransfer:
 
     async def read_block(self):
         async def check_block_buf():
-            while self.is_block and self.idx_block_buf < 113: # 133 bytes - 1 packet * 20(MTU=23) = 113 bytes; c.f. 1+1+1+128+2=133 bytes (one block)
+            while self.is_block and self.idx_block_buf < 133: # c.f. 1+1+1+128+2=133 bytes (one block)
                 await asyncio.sleep_ms(10)
-            await asyncio.sleep_ms(10)
 
         def write_to_buf(data):
             self.write_buf_page[self.idx_write_buf][:] = data
