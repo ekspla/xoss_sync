@@ -1,5 +1,5 @@
 # xoss_sync
-A python (CPython and Micropython) code to fetch fit files from XOSS G+ cyclo-computer over bluetooth (BLE) for you.
+Python (**CPython** and **Micropython**) codes to fetch fit files from **XOSS G+** cyclo-computer over bluetooth (BLE) for you.
 
 (C) 2024 [ekspla](https://github.com/ekspla/xoss_sync)
 
@@ -7,8 +7,8 @@ A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, insp
 
 This code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-**The PC version (xoss_sync.py)** was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2 
-while **the Micropython (MPY) version (mpy_xoss_sync.py)** with MPY-1.23.0 on ESP32-WROOM-32E, SD card, and aioble.
+**The PC version** (```xoss_sync.py```) was tested with XOSS G+ (gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0), Python-3.8.6 and Bleak-0.22.2 
+while **the Micropython (MPY) version** (```mpy_xoss_sync.py```) with MPY-1.23.0 on ESP32-WROOM-32E, SD card, and aioble.
 
 ## Features
 This script allows you to:
@@ -104,7 +104,7 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/data size by DLE (data length extension) and STX.  See, 
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
-3. Sync times using an example file of 235,723 bytes were as followings (as of 07 AUG 2024).
-- Proprietary XOSS App using Android x86 on FX-6300, 00:07:27 (4.2 kbps)
-- PC version/bleak using Windows10 on Core-i5, 00:05:32 (5.7 kbps)
-- MPY version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:12 (4.4 kbps)
+3. Sync times using an example FIT file of 235,723 bytes were as followings (as of 07 AUG 2024).
+- Proprietary XOSS App using Android x86 on FX-6300, 00:07:27 (4.2 kbps).
+- PC/bleak version using Windows10 on Core-i5, 00:05:32 (5.7 kbps).
+- MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:12 (4.4 kbps).
