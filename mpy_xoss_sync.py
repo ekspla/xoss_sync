@@ -104,13 +104,23 @@ class BluetoothFileTransfer:
                 self.block_buf[self.idx_block_buf:self.idx_block_buf + len_data] = data
                 self.idx_block_buf += len_data
 
+        async def fill_queue(n, timeout_ms):
+            async def q():
+                while len(queue) < n:
+                    asyncio.sleep_ms(10)
+            try:
+                asyncio.wait_for_ms(q(), timeout_ms)
+            except asyncio.TimeoutError:
+                pass
+            await asyncio.sleep_ms(10)
+
         while True:
             data = await self.tx_characteristic.notified()
             if data == _EOT:                                                         # Receive EOT.
                 self.is_block = False
                 self.notification_data[:] = data
             elif self.is_block:                                                     # Packets should be combined to make a block.
-                await asyncio.sleep_ms(150)
+                await fill_queue(n=6, timeout_ms=150)
                 append_to_block_buf(data)
                 while len(queue) >= 1:
                     append_to_block_buf(queue.popleft())
@@ -270,8 +280,8 @@ class BluetoothFileTransfer:
                 else:
                     await self.send_cmd(self.rx_characteristic, VALUE_ACK, 80)              # Send ACK.
                 await asyncio.sleep_ms(80)
-            await self.end_of_transfer()
             notify_handler_task.cancel()
+            await self.end_of_transfer()
             if self.data_written != self.data_size:
                 print(f"Error: {self.data_written}(file size) != {self.data_size}(spec)")
             else:
