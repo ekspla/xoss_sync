@@ -317,7 +317,7 @@ class BluetoothFileTransfer:
             service = await connection.service(_SERVICE_UUID)
             self.ctl_characteristic = await service.characteristic(_CTL_CHARACTERISTIC_UUID)
             self.tx_characteristic = await service.characteristic(_TX_CHARACTERISTIC_UUID)
-            self.tx_characteristic._notify_queue = deque((), 6)
+            self.tx_characteristic._notify_queue = deque((), 7)
             self.rx_characteristic = await service.characteristic(_RX_CHARACTERISTIC_UUID)
             await self.ctl_characteristic.subscribe(notify=True)
             await self.tx_characteristic.subscribe(notify=True)
