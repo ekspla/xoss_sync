@@ -1,5 +1,5 @@
 # xoss_sync
-Python (**CPython** and **Micropython**) codes to fetch fit files from **XOSS G+** cyclo-computer over bluetooth (BLE) for you.
+Python (**CPython** and **Micropython**) codes to fetch FIT files from **XOSS G+** cyclo-computer over bluetooth (BLE) for you.
 
 (C) 2024 [ekspla](https://github.com/ekspla/xoss_sync)
 
