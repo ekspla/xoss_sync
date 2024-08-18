@@ -107,9 +107,9 @@ class BluetoothFileTransfer:
         async def fill_queue(n, timeout_ms):
             async def q():
                 while len(queue) < n:
-                    asyncio.sleep_ms(10)
+                    await asyncio.sleep_ms(10)
             try:
-                asyncio.wait_for_ms(q(), timeout_ms)
+                await asyncio.wait_for_ms(q(), timeout_ms)
             except asyncio.TimeoutError:
                 pass
             await asyncio.sleep_ms(10)
