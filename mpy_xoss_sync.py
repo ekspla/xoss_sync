@@ -275,10 +275,9 @@ class BluetoothFileTransfer:
                 if self.block_num % 128 == 0: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
-                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 80)              # Send NAK on error.
+                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 100)              # Send NAK on error.
                 else:
-                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 80)              # Send ACK.
-                await asyncio.sleep_ms(80)
+                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 100)              # Send ACK.
             notify_handler_task.cancel()
             await self.end_of_transfer()
             if self.data_written != self.data_size:
