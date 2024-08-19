@@ -218,10 +218,9 @@ class BluetoothFileTransfer:
                     self.is_block = False # Wait 0.2 s for garbage.
                     await asyncio.sleep(0.2)
                     self.is_block = True
-                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.08) # Send NAK on error.
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_NAK, 0.1) # Send NAK on error.
                 else:
-                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.08) # Send ACK.
-                await asyncio.sleep(0.08)
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_ACK, 0.1) # Send ACK.
             await self.end_of_transfer(client)
             self.save_file_raw(filename)
 
