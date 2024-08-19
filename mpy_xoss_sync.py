@@ -112,7 +112,6 @@ class BluetoothFileTransfer:
                 await asyncio.wait_for_ms(q(), timeout_ms)
             except asyncio.TimeoutError:
                 pass
-            await asyncio.sleep_ms(10)
 
         while True:
             data = await self.tx_characteristic.notified()
