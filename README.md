@@ -88,7 +88,16 @@ mpremote mip install aioble
 >>> mpy_xoss_sync.start()
 ```
 
-Though it works well as PC version, this is an adhoc implementation to MPY/aioble; still work-in-progress (see Note 3). 
+Though it works well as PC version, this is an adhoc implementation to MPY/aioble; still work-in-progress. 
+
+Throughput (see Note 3) can be increased by specifying the connection parameters of scan_duration_ms, min_conn_interval_us and max_conn_interval_us 
+[as described here.](https://github.com/micropython/micropython/issues/15418)
+
+```async def _connect()``` in aioble/central.py:
+```
+-           ble.gap_connect(device.addr_type, device.addr)
++           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
+```
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
@@ -105,6 +114,7 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 3. Sync times using an example FIT file of 235,723 bytes were as followings (as of 19 AUG 2024).
-- Proprietary XOSS App using Android x86 on FX-6300, 00:07:27 (4.2 kbps).
+- Proprietary XOSS App using Android-x86 on FX-6300, 00:07:27 (4.2 kbps).
 - PC/bleak version using Windows10 on Core-i5, 00:03:45 (8.4 kbps).
 - MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
+- MPY/aioble with specific connection parameters using MPY-1.23.0 on ESP32-WROOM-32E, 00:04:04 (7.7 kbps).
