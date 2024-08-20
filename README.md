@@ -90,7 +90,7 @@ mpremote mip install aioble
 
 Though it works well as PC version, this is an adhoc implementation to MPY/aioble; still work-in-progress. 
 
-Throughput (see Note 3) can be increased by specifying the connection parameters of scan_duration_ms, min_conn_interval_us and max_conn_interval_us 
+Throughput (see Note 3) can be increased by specifying the optional connection parameters of scan_duration_ms, min_conn_interval_us and max_conn_interval_us 
 [as described here.](https://github.com/micropython/micropython/issues/15418)
 
 ```async def _connect()``` in aioble/central.py:
