@@ -117,12 +117,16 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
 - Proprietary XOSS App using Android-x86 on FX-6300, 00:07:27 (4.2 kbps).
 - PC/bleak version using Windows10 on Core-i5, 00:03:45 (8.4 kbps).
 - MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
-- MPY/aioble with specific connection parameters using MPY-1.23.0 on ESP32-WROOM-32E, 00:04:04 (7.7 kbps).
+- MPY/aioble with the specific connection interval (11.5 ms), 00:04:04 (7.7 kbps).
 
 (c.f.)
-Theoretical limit using 11.5 ms conn_interval:
+Theoretical limit using 11.5 ms connection interval on MPY/ESP32:
 
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
 so, 128 bytes (1 block) == 2 connection + 1 connection for ACK.
 
 87 connections/s * (128 bytes / 3 connections) * 8 bits/byte = 29.7 kbps.
+
+
+On Win11, the limits are 1.9, 5.7 and 22.8 kbps for PowerOptimized (180 ms), Balanced (60 ms) and ThroughputOptimized (15 ms) settings, respectively.  
+There is no API in bleak on Windows to change the setting though.  On Linux, the max/min connection intervals might be specified.
