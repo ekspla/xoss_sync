@@ -118,7 +118,10 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
 - PC/bleak version using Windows10 on Core-i5, 00:03:45 (8.4 kbps).
 - MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
 - MPY/aioble with specific connection parameters using MPY-1.23.0 on ESP32-WROOM-32E, 00:04:04 (7.7 kbps).
-- Theoretical limit using 11.5 ms conn_interval:
+
+(c.f.)
+Theoretical limit using 11.5 ms conn_interval:
+
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
 so, 133 bytes (1 block) == 2 connection + 1 connection for ACK.
 
