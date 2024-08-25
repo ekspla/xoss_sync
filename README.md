@@ -135,7 +135,8 @@ Intel wireless adaptor (as shown above) suggests Balanced setting.
 On Linux, the max/min connection intervals might be specified by user.
 
 4. conn_min_interval/conn_max_interval on Linux kernels.
-Changing the parameters did not work for XOSS App/Android-x86 in my case.
+
+Changing the parameters did not work for the XOSS App/Android-x86 in my case.
 ```
 x86:/ $ su
 x86:/ # cat /sys/kernel/debug/bluetooth/hci0/conn_min_interval
