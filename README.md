@@ -114,7 +114,7 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 3. Sync times using my FIT file of 235,723 bytes were as followings (as of 19 AUG 2024).
-- Proprietary XOSS App using Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps). Connection interval could not be specified (see Note 4).
+- Proprietary XOSS App using Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps). Connection interval could not be changed (see Note 4).
 - PC/bleak version using Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
 - PC/bleak version using Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
 - MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
@@ -130,19 +130,19 @@ so, 128 bytes (1 block) == 2 connection + 1 connection for ACK.
 
 
 On Win11, the limits are 1.9, 5.7 and 22.8 kbps for PowerOptimized (180 ms), Balanced (60 ms) and ThroughputOptimized (15 ms) settings, 
-respectively.  There is no API in bleak on Windows to change the setting though.  The measured throughput of 3.6 kbps on Win11 using 
+respectively.  There is no API in Bleak on Windows to change the setting though.  The measured throughput of 3.6 kbps on Win11 using 
 Intel wireless adaptor (as shown above) suggests Balanced setting.
-On Linux, the max/min connection intervals might be specified by user.
+On Linux, the min/max connection intervals might be specified by the user (see below).
 
-4. conn_min_interval/conn_max_interval on Linux kernels.
+4. Conn_min_interval/conn_max_interval on Linux kernels.
 
 Changing the parameters did not work for the XOSS App/Android-x86 in my case.
-```
+```sh
 x86:/ $ su
 x86:/ # cat /sys/kernel/debug/bluetooth/hci0/conn_min_interval
-40                                                              # 40 * 1.25  = 50 ms
+40                                                                      # 40 * 1.25  = 50 ms
 x86:/ # cat /sys/kernel/debug/bluetooth/hci0/conn_max_interval
-56                                                              # 56 * 1.25 = 70 ms
-echo 9 > /sys/kernel/debug/bluetooth/hci0/conn_min_interval     # 9 * 1.25 = 11.25 ms
-echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval     # 20 * 1.25 = 25 ms
+56                                                                      # 56 * 1.25 = 70 ms
+x86:/ # echo 9 > /sys/kernel/debug/bluetooth/hci0/conn_min_interval     # 9 * 1.25 = 11.25 ms
+x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1.25 = 25 ms
 ```
