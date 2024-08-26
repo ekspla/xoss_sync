@@ -124,7 +124,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
 Theoretical limit using 11.5 ms connection interval on MPY/ESP32:
 
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
-so, 128 bytes (1 block) == 2 connection + 1 connection for ACK.
+so, 128 bytes (1 block) == 2 connections + 1 connection for ACK.
 
 87 connections/s * (128 bytes / 3 connections) * 8 bits/byte = 29.7 kbps.
 
