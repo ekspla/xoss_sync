@@ -94,7 +94,7 @@ Throughput (see Note 3) can be increased by specifying the optional connection p
 [as described here.](https://github.com/micropython/micropython/issues/15418)
 
 ```async def _connect()``` in aioble/central.py:
-```
+``` Diff
 -           ble.gap_connect(device.addr_type, device.addr)
 +           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
 ```
@@ -137,7 +137,7 @@ On Linux, the min/max connection intervals might be specified by the user (see b
 4. Conn_min_interval/conn_max_interval on Linux kernels.
 
 Changing the parameters did not work for the XOSS App/Android-x86 in my case.
-```sh
+``` ShellSession
 x86:/ $ su
 x86:/ # cat /sys/kernel/debug/bluetooth/hci0/conn_min_interval
 40                                                                      # 40 * 1.25  = 50 ms
