@@ -118,7 +118,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
 - PC/bleak version using Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
 - PC/bleak version using Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
 - MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
-- MPY/aioble with the specific connection interval, 00:04:04 (7.7 kbps).  Ca. +20 sec from Win10 due to slow/blocking file io.
+- MPY/aioble with the specific connection interval, 00:04:04 (7.7 kbps).  Ca. +20 sec from Win10 due mainly to slow/blocking file io.
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/ESP32:
