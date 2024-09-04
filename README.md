@@ -92,7 +92,7 @@ Though it works very well as PC version, this is an ad hoc implementation to MPY
 
 Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and 
 *max_conn_interval_us* [as described here.](https://github.com/micropython/micropython/issues/15418)  These intervals can be reduced to the 
-minimum value of 7_500 (7.5 ms) on ESP32-S3, although I am not sure about the real connection interval.
+minimum value of 7_500 (7.5 ms) on ESP32-S3, although I am not sure about the actual connection interval.
 
 Modify ```async def _connect()``` in aioble/central.py:
 ``` Diff
