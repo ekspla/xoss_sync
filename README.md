@@ -89,6 +89,7 @@ mpremote mip install aioble
 ```
 
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
+The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3-WROOM-1-N16R8 (see Note 3).
 
 5. Optional
 
@@ -110,7 +111,6 @@ Modify  ```async def _notified_indicated()``` in aioble/client.py:
 +       await asyncio.sleep_ms(5)
         return queue.popleft()
 ```
-The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3-WROOM-1-N16R8 (see Note 3).
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
