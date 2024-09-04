@@ -90,14 +90,25 @@ mpremote mip install aioble
 
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
 
-Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and *max_conn_interval_us* 
-[as described here.](https://github.com/micropython/micropython/issues/15418)
+Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and 
+*max_conn_interval_us* [as described here.](https://github.com/micropython/micropython/issues/15418)  These intervals can be reduced to the 
+minimum value of 7_500 (7.5 ms) on ESP32-S3, although I am not sure about the real connection interval.
 
 Modify ```async def _connect()``` in aioble/central.py:
 ``` Diff
 -           ble.gap_connect(device.addr_type, device.addr)
 +           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
 ```
+With the short intervals, you might have to add a short ```sleep_ms``` before reading the notification queue as following.
+
+Modify  ```async def _notified_indicated()``` in aioble/client.py:
+``` Diff
+        # Either we started > 1 item, or the wait completed successfully, return
+        # the front of the queue.
++       await asyncio.sleep_ms(5)
+        return queue.popleft()
+```
+The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3-WROOM-1-N16R8 (see Note 3).
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
@@ -113,12 +124,16 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block size by DLE (data length extension) and STX.  See, 
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
-3. Sync times using my FIT file of 235,723 bytes were as followings (as of 19 AUG 2024).
-- Proprietary XOSS App using Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps). Connection interval could not be changed (see Note 4).
-- PC/Bleak version using Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
-- PC/Bleak version using Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
-- MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
-- MPY/aioble with the specific connection interval, 00:04:04 (7.7 kbps).  Ca. +20 sec from Win10 due mainly to slow/blocking file io.
+3. Sync times using my FIT file of 235,723 bytes were as followings (as of 4 SEP 2024).
+   - Proprietary XOSS App using Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps). Connection interval could not be changed (see Note 4).
+   - PC/Bleak version using Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
+   - PC/Bleak version using Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
+   - MPY/aioble version using MPY-1.23.0 on ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
+   - MPY/aioble with 11.5 ms conn_intervals on ESP32, 00:04:04 (7.7 kbps).
+   - MPY/aioble with 11.5 ms conn_intervals on ESP32-S3, 00:03:46 (8.3 kbps).
+   - MPY/aioble with 7.5 ms conn_intervals, reduced ACK delays and no garbage-collection on ESP32-S3, 00:02:42 (11.6 kbps). Further 
+optimization may require [a modified firmware with increased tick-rate in FreeRtos](https://github.com/orgs/micropython/discussions/15594)
+; ```CONFIG_FREERTOS_HZ=1000```.
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/ESP32:
