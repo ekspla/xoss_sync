@@ -133,7 +133,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
    - MPY/aioble with 11.5 ms conn_intervals on ESP32-S3, 00:03:46 (8.3 kbps).
    - MPY/aioble with 7.5 ms conn_intervals, reduced ACK delays and no garbage-collection on ESP32-S3, 00:02:42 (11.6 kbps). Further 
 optimization may require [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
-; ```CONFIG_FREERTOS_HZ=1000```.
+; ```CONFIG_FREERTOS_HZ=1000``` (which defaults to 100 Hz).
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/ESP32:
