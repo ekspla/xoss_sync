@@ -128,7 +128,8 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
 
 3. Sync times using my FIT file of 235,723 bytes were as followings (as of 6 SEP 2024).
 - Proprietary XOSS App
-    - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps). Connection interval could not be changed (see Note 4).
+    - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
+       - Connection interval could not be changed (see Note 4).
 - PC/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
