@@ -126,7 +126,7 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block size by DLE (data length extension) and STX.  See, 
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
-3. Sync times using my FIT file of 235,723 bytes were as followings (as of 6 SEP 2024).
+3. Sync times (throughput in parentheses) using my FIT file of 235,723 bytes were as followings (as of 6 SEP 2024).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
        - Connection interval could not be changed (see Note 4).
