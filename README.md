@@ -134,7 +134,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
-    - MPY/aioble, ESP32-WROOM-32E, 00:07:11 (4.4 kbps).
+    - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32-S3, 00:03:46 (8.3 kbps).
     - MPY/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no garbage-collection, ESP32-S3, 00:02:42 (11.6 kbps).
