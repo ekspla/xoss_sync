@@ -7,8 +7,11 @@ A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, insp
 
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-**The PC version** (```xoss_sync.py```) was tested with XOSS G+ (Gen1), Windows10 on Core-i5, TPLink USB BT dongle (UB400, v4.0, CSR8510 chip), Python-3.8.6 and Bleak-0.22.2 
-while **the Micropython (MPY) version** (```mpy_xoss_sync.py```) with MPY-1.23.0 on ESP32-WROOM-32E, SD card, and aioble.
+**The PC version** (```xoss_sync.py```) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle (UB400, v4.0, CSR8510 
+chip)/Intel Wireless (v5.1), Python-3.8.6/3.12.6 and Bleak-0.22.2.
+
+**The Micropython (MPY) version** (```mpy_xoss_sync.py```) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, SD card, 
+and aioble.
 
 ## Features
 This script allows you to:
@@ -66,7 +69,7 @@ Skip: 20240601060515.fit
 D:\backup\Bicycle\XOSS\python>
 ```
 
-Though I tested this only with XOSS G+ (Gen1) and Windows10 & 11, combinations of the other XOSS device/OS might work.
+Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work.
 C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 
@@ -133,6 +136,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
 - PC/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
+    - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
     - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
