@@ -3,8 +3,7 @@ Python (**CPython** and **Micropython**) codes to fetch FIT files from **XOSS G+
 
 (C) 2024 [ekspla](https://github.com/ekspla/xoss_sync)
 
-A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss).
-
+A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss). 
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
 **The PC version** (```xoss_sync.py```) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle (UB400, v4.0, CSR8510 
