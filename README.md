@@ -143,7 +143,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32-S3, 00:03:46 (8.3 kbps).
     - MPY/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no garbage-collection, ESP32-S3, 00:02:42 (11.6 kbps).
        - Further optimization requires [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
-; ```CONFIG_FREERTOS_HZ=1000``` (from default value of 100 \[10\] to 1000 Hz \[1 ms\]).
+; ```CONFIG_FREERTOS_HZ=1000``` (from default value of 100 \[10 ms\] to 1000 Hz \[1 ms\]).
     - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
 
 (c.f.)
