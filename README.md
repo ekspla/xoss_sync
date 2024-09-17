@@ -128,7 +128,7 @@ requests MTU of 525, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block size by DLE (data length extension) and STX.  See, 
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
-3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 16 SEP 2024).
+3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 17 SEP 2024).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
        - Connection interval could not be changed (see Note 4).
@@ -144,6 +144,7 @@ for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/devic
        - Further optimization requires [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
 ; change ```CONFIG_FREERTOS_HZ``` from default value of 100 \[10 ms\] to 1000 Hz \[1 ms\].
     - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
+    - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:36 (12.1 kbps).
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
