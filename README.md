@@ -10,7 +10,7 @@ The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/
 chip)/Intel Wireless (v5.1), Python-3.8.6/3.12.6 and Bleak-0.22.2.
 
 **The Micropython (MPY) version** (```mpy_xoss_sync.py```) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, SD card, 
-and aioble.  After a bit of modification (change the path to /sd), this code was also tested with a unix-build of MPY-1.23.0(+ 
+and aioble.  After a bit of modification (changes in the path to /sd), this code was also tested with a unix-build of MPY-1.23.0(+ 
 [PR#14006](https://github.com/micropython/micropython/pull/14006))/aioble on PC-Linux-x64 and TPLink UB400.
 
 ## Features
