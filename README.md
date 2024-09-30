@@ -130,7 +130,9 @@ requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 17 SEP 2024). 
-The connection intervals were measured by using BLE sniffer (nRF52840 dongle) and Wireshark.
+The connection intervals were measured by using 
+[BLE sniffer](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
+[Wireshark](https://www.wireshark.org/download.html).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
        - Connection interval could not be changed (see Note 4).
