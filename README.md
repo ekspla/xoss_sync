@@ -138,10 +138,11 @@ The connection intervals were measured by using
        - 50.0 ms connection interval (measured) could not be changed (see Note 4).
 - PC/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
-       - 15.0 ms (measured connection interval)
+       - 15.0 ms (measured connection interval).
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
-       - 60.0 ms (measured connection interval)
+       - 60.0 ms (measured connection interval).
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
+       - 50.0 ms (measured connection interval).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
     - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
