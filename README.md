@@ -138,7 +138,7 @@ The connection intervals were measured by using
        - Connection interval could not be changed (see Note 4).
 - PC/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
-       - 22.5 ms (measured connection interval)
+       - 15.0 ms (measured connection interval)
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
        - 60.0 ms (measured connection interval)
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
