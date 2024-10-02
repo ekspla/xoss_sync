@@ -135,12 +135,12 @@ The connection intervals were measured by using
 [Wireshark](https://www.wireshark.org/download.html).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
-       - 50.0 ms connection interval (measured) could not be changed (see Note 4).
+       - 50.0 ms connection interval (measured); this could not be changed (see Note 4).
 - PC/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
-       - 15.0 ms (measured connection interval).
+       - 15.0 ms connection interval (measured).
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
-       - 60.0 ms (measured connection interval).
+       - 60.0 ms connection interval (measured).
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
        - 50.0 ms (measured connection interval).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
