@@ -131,7 +131,7 @@ See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/
 
 3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 17 SEP 2024). 
 The connection intervals were measured by using 
-[BLE sniffer](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
+[nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
