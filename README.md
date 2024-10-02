@@ -123,26 +123,26 @@ of YMODEM in part as followings.
 if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data in YMODEM (see, Notes 1 & 2).
 
 ## Notes
-1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block size(128) with Win11 and Bluetooth 5.1 interface, which always 
+1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
 
-2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block size by DLE (data length extension) and STX.  See, 
-for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
+2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data length extension) and STX. 
+See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 17 SEP 2024). 
 The connection intervals were measured by using 
-[BLE sniffer](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
+[nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
-       - 50.0 ms connection interval (measured) could not be changed (see Note 4).
+       - 50.0 ms connection interval (measured); this could not be changed (see Note 4).
 - PC/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
-       - 15.0 ms (measured connection interval).
+       - 15.0 ms connection interval (measured).
     - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
-       - 60.0 ms (measured connection interval).
+       - 60.0 ms connection interval (measured).
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
-       - 50.0 ms (measured connection interval).
+       - 50.0 ms connection interval (measured).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
     - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
@@ -157,9 +157,9 @@ The connection intervals were measured by using
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
 
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
-so, 133 bytes (1 block, incl. header and CRC) == 2 connections + 1 connection for ACK.
+so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections + 1 connection for ACK.
 
-87 connections/s * (128 bytes / 3 connections) * 8 bits/byte = 29.7 kbps \[45.5 kbps for 7.5 ms interval\].
+87 connections/s * (128 data bytes / 3 connections) * 8 bits/byte = 29.7 kbps \[this would be 45.5 kbps for 7.5 ms interval\].
 
 
 On Win11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
