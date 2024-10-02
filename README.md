@@ -157,7 +157,7 @@ The connection intervals were measured by using
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
 
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
-so, 128 bytes (1 block) == 2 connections + 1 connection for ACK.
+so, 133 bytes (1 block, incl. header and CRC) == 2 connections + 1 connection for ACK.
 
 87 connections/s * (128 bytes / 3 connections) * 8 bits/byte = 29.7 kbps \[45.5 kbps for 7.5 ms interval\].
 
