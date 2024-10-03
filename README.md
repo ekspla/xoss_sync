@@ -179,7 +179,3 @@ x86:/ # cat /sys/kernel/debug/bluetooth/hci0/conn_max_interval
 x86:/ # echo 9 > /sys/kernel/debug/bluetooth/hci0/conn_min_interval     # 9 * 1.25 = 11.25 ms
 x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1.25 = 25 ms
 ```
-
-5. Update conn_interval by sending ```LL_CONNECTION_UPDATE_IND``` from the central (app/scripts) to the pheripheral (XOSS device)
-
-From the BLE sniffer log, this does not work for my XOSS-G+ (Gen1); conn_interval should be specified in the beginning in my case.
