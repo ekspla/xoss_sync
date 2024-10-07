@@ -24,6 +24,7 @@ import asyncio
 from bleak import BleakScanner, BleakClient
 import re
 import os
+import datetime
 
 #TARGET_NAME = "XOSS G-040989"
 TARGET_NAME = "XOSS"
@@ -47,6 +48,8 @@ OK_DISKSPACE = bytearray([0x0a]) # r
 #VALUE_ERR_MEMORY = bytearray([0x13, 0x00, 0x13]) # r
 #VALUE_ERR_NO_IDLE = bytearray([0x14, 0x00, 0x14]) # r
 #ERR_FILE_PARSE = bytearray([0x15]) # r
+TIME_SET = bytearray([0x54]) # w
+OK_TIME_SET = bytearray([0x55]) # r
 VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
 
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
@@ -244,6 +247,18 @@ class BluetoothFileTransfer:
             diskspace = self.notification_data[1:-1].decode('utf-8')
             print(f"Free Diskspace: {diskspace}kb")
 
+    async def time_set(self, client):
+        # Set RTC on the device (32-bit uint, UTC, and 1970/1/1 epoch)
+        self.notification_data = AWAIT_NEW_DATA
+        self.is_block = False
+        value_time_set = (TIME_SET
+            + bytearray(int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp()).to_bytes(4, 'little'))
+            + bytearray([0x00]))
+        value_time_set[-1] = self.crc8_xor(value_time_set)
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, value_time_set, 0.1)      # Request starts with 0x54
+        #await self.wait_until_data(client)                                             # Response starts with 0x55
+        await asyncio.sleep(1) # Wait 1 sec because of no response from XOSS-G+ gen1.
+
     async def run(self):
         device = await self.discover_device(TARGET_NAME)
         if not device:
@@ -258,6 +273,7 @@ class BluetoothFileTransfer:
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
                 print(f"Notifications started")
 
+                #await self.time_set(client)
                 await self.read_diskspace(client)
 
                 await self.fetch_file(client, 'filelist.txt')
