@@ -145,12 +145,15 @@ The connection intervals were measured by using
        - 50.0 ms connection interval (measured).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
     - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
+       - 50.0 ms connection interval (measured).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
+       - 11.25 ms connection interval (measured).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32-S3, 00:03:46 (8.3 kbps).
     - MPY/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no garbage-collection, ESP32-S3, 00:02:42 (11.6 kbps).
        - Further optimization requires [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
 ; change ```CONFIG_FREERTOS_HZ``` from default value of 100 \[10 ms\] to 1000 Hz \[1 ms\].
     - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
+       - 7.5 ms connection interval (measured).
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:36 (12.1 kbps).
 
 (c.f.)
