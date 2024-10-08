@@ -98,7 +98,7 @@ The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with uni
 
 Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and 
 *max_conn_interval_us* [as described here.](https://github.com/micropython/micropython/issues/15418)  These intervals can be reduced to the 
-minimum value of 7_500 (7.5 ms) on ESP32-S3, although I am not sure about the actual connection interval after negotiation.
+minimum value of 7_500 (7.5 ms) on ESP32-S3.
 
 Modify ```async def _connect()``` in aioble/central.py:
 ``` Diff
