@@ -154,7 +154,7 @@ The connection intervals were measured by using
 ; change ```CONFIG_FREERTOS_HZ``` from default value of 100 Hz \[10 ms\] to 1000 Hz \[1 ms\].
     - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
        - 7.5 ms connection interval (measured).
-       - While the client (mpy_xoss_sync) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), the throughput was mainly 
+       - While the client (mpy_xoss_sync) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), the throughput is 
 determined by the unresponsive peripheral (XOSS-G+) to the ACKs in YMODEM.
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:36 (12.1 kbps).
 
