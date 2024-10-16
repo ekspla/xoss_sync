@@ -155,7 +155,7 @@ The connection intervals were measured by using
     - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
        - 7.5 ms connection interval (measured).
        - While the client (mpy_xoss_sync.py) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), the throughput is 
-determined by the unresponsive peripheral (XOSS-G+) to the ACKs in YMODEM.  Typically, 2-3 ACKs are necessary.
+determined by the unresponsive peripheral (XOSS-G+) to the ACKs in YMODEM.  Typically, 2-3 ACKs (2-3 connection events) are necessary.
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:36 (12.1 kbps).
 
 (c.f.)
