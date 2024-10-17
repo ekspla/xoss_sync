@@ -155,9 +155,11 @@ The connection intervals were measured by using
     - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
        - 7.5 ms connection interval (measured).
        - While the client (mpy_xoss_sync.py) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), **the throughput is 
-determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no empty-packets sent from XOSS-G+).  **Typically, 2-4 ACKs (using 2-4 connection 
-events) are necessary irrespective of connection intervals**.  See example sniffer logs of [7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
-and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This issue may be caused by the Nordic's SoftDevice in XOSS-G+.
+determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no empty-packets sent from XOSS-G+).  **Typically, 2-4 ACKs 
+(using 2-4 connection events) are necessary irrespective of connection intervals**.  The theoretical limit of 3 connection/block, as shown below, does 
+not occur because of the unresponsiveness.  See example sniffer logs of [7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
+and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This issue may be caused by the Nordic's SoftDevice 
+in XOSS-G+.
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:36 (12.1 kbps).
 
 (c.f.)
