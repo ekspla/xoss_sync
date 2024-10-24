@@ -123,6 +123,7 @@ class BluetoothFileTransfer:
                 append_to_block_buf(data)
                 while len(queue) >= 1:
                     append_to_block_buf(queue.popleft())
+                self.tx_characteristic._notify_event.clear()                        # Make sure to clear the flag.
             else:
                 self.notification_data[:] = data                                    # Other messages/responses.
             await asyncio.sleep(0)
@@ -132,6 +133,7 @@ class BluetoothFileTransfer:
         await asyncio.sleep_ms(200)
         while len(queue) >= 1:
             _ = queue.popleft()
+        self.tx_characteristic._notify_event.clear()                                # Make sure to clear the flag.
 
     async def discover_device(self, target_name):
         # Scan for 20 seconds, in active mode, with very low interval/window (to maximise detection rate).
@@ -275,9 +277,9 @@ class BluetoothFileTransfer:
                 if self.block_num % 128 == 0: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
-                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 100)              # Send NAK on error.
+                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 10)               # Send NAK on error.
                 else:
-                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 100)              # Send ACK.
+                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 10)               # Send ACK.
             notify_handler_task.cancel()
             await self.end_of_transfer()
             if self.data_written != self.data_size:

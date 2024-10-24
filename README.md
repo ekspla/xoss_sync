@@ -105,14 +105,13 @@ Modify ```async def _connect()``` in aioble/central.py:
 -           ble.gap_connect(device.addr_type, device.addr)
 +           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
 ```
-With the short intervals, you might have to add a short ```sleep_ms``` before reading the notification queue as following.
 
-Modify  ```async def _notified_indicated()``` in aioble/client.py:
+If you have installed version-0.4.0 aioble [commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
+
+modify ```async def run()``` in mpy_xoss_sync.py:
 ``` Diff
-        # Either we started > 1 item, or the wait completed successfully, return
-        # the front of the queue.
-+       await asyncio.sleep_ms(5)
-        return queue.popleft()
+-               connection = await device.connect(timeout_ms=60_000)
++               connection = await device.connect(timeout_ms=60_000, 5_000, 11_500, 11_500)
 ```
 
 ## Limitation
