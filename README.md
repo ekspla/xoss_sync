@@ -128,7 +128,7 @@ requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data length extension) and STX. 
 See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
-3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 16 OCT 2024). 
+3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 25 OCT 2024). 
 The connection intervals were measured by using 
 [nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
@@ -159,7 +159,7 @@ determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no packe
 not occur because of the unresponsiveness.  See example sniffer logs of [7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
 and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of the intervals, 
 may be caused by the Nordic's SoftDevice in XOSS-G+.
-    - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:36 (12.1 kbps).
+    - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:25 (13.0 kbps).
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
