@@ -161,7 +161,7 @@ and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_5
 may be caused by the Nordic's SoftDevice in XOSS-G+.
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:25 (13.0 kbps).
        - 7.5 ms connection interval (measured).
-       - Throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; BTstack vs. NimBLE.
+       - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; BTstack vs. NimBLE.
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
