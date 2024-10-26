@@ -158,10 +158,12 @@ determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no packe
 (using 2-4 connection events) are necessary irrespective of connection intervals**.  The theoretical limit of 3 connections/block, as shown below, does 
 not occur because of the unresponsiveness.  See example sniffer logs of [7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
 and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of the intervals, 
-may be caused by the Nordic's SoftDevice in XOSS-G+.
+may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52832/) in XOSS-G+.
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:25 (13.0 kbps).
        - 7.5 ms connection interval (measured).
-       - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; BTstack vs. NimBLE.
+       - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; 
+[BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an empty packet which 
+is not necessary is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
