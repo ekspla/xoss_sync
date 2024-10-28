@@ -106,7 +106,7 @@ Modify ```async def _connect()``` in aioble/central.py:
 +           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
 ```
 
-Alternatively, if you have installed version-0.4.0 of aioble after [commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
+Alternatively, if you have installed the latest aioble after [commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
 
 modify ```async def run()``` in mpy_xoss_sync.py:
 ``` Diff
