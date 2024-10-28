@@ -98,7 +98,7 @@ The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with uni
 
 Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and 
 *max_conn_interval_us* [as described here.](https://github.com/micropython/micropython/issues/15418)  These intervals can be reduced to the 
-minimum value of 7_500 (7.5 ms) on ESP32-S3.
+minimum value of 7_500 (7.5 ms) on ESP32-S3 and on PC-Linux-x64 using unix port.
 
 Modify ```async def _connect()``` in aioble/central.py:
 ``` Diff
@@ -162,8 +162,8 @@ may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52
     - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:25 (13.0 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; 
-[BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an empty packet which 
-is not necessary is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
+[BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an unnecessary empty packet 
+is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
