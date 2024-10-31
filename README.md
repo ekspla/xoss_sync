@@ -166,6 +166,7 @@ may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52
 is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
     - Using [a pair of test codes](https://github.com/ekspla/micropython_aioble_examples) (```nus_modem_server.py```, ```nus_modem_client.py```): 
 MPY/PC-Linux-x64 (server) --> MPY/ESP32-S3 (client), 00:01:08 (27.7 kbps).
+       - 7.5 ms connection interval (measured).
        - The throughput was significantly faster 
 [without the strange unresponsive delay caused by XOSS-G+](https://github.com/ekspla/xoss_sync/blob/main/reference/test_code_pair_7r5ms.png).
 
