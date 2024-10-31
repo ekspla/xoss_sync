@@ -164,6 +164,9 @@ may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52
        - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; 
 [BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an unnecessary empty packet 
 is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
+    - Using [a pair of test codes](https://github.com/ekspla/micropython_aioble_examples) (```nus_modem_server.py```, ```nus_modem_client.py```): 
+MPY/PC-Linux-x64 (server) --> MPY/ESP32-S3 (client), 00:01:08 (27.7 kbps).
+       - The throughput was siginificantly faster without the strange unresposive delay caused by XOSS-G+.
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
