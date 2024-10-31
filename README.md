@@ -128,7 +128,7 @@ requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) f
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data length extension) and STX. 
 See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
-3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 25 OCT 2024). 
+3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 31 OCT 2024). 
 The connection intervals were measured by using 
 [nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
