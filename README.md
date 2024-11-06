@@ -111,7 +111,7 @@ Alternatively, if you have installed the latest aioble after [commit 68e3e07](ht
 modify ```async def run()``` in mpy_xoss_sync.py:
 ``` Diff
 -               connection = await device.connect(timeout_ms=60_000)
-+               connection = await device.connect(timeout_ms=60_000, 5_000, 11_500, 11_500)
++               connection = await device.connect(timeout_ms=60_000, scan_duration_ms=5_000, min_conn_interval_us=11_500, max_conn_interval_us=11_500)
 ```
 
 ## Limitation
