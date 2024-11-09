@@ -181,7 +181,7 @@ so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections 
 
 On Win11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
 respectively.  There is no API in Bleak on Windows to change this setting though.  The measured throughput of 3.6 kbps on Win11 using 
-Intel wireless adaptor (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value as shown above.
+Intel wireless adaptor (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value.
 On Linux, the min/max connection intervals may be specified by the user (see below).
 
 4. Conn_min_interval/conn_max_interval on Linux kernels.
