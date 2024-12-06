@@ -196,3 +196,11 @@ x86:/ # cat /sys/kernel/debug/bluetooth/hci0/conn_max_interval
 x86:/ # echo 9 > /sys/kernel/debug/bluetooth/hci0/conn_min_interval     # 9 * 1.25 = 11.25 ms
 x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1.25 = 25 ms
 ```
+
+5. LE 2M PHY support of XOSS-G+.
+
+Although my XOSS-G+ shows `LE_2M_PHY = True` (BLE 5.0) in the feature response packet, it stops communication silently and starts advertising again 
+after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet.  It seems that the client's request of changing from 1M to 2M is not handled in the 
+XOSS-G+ software as specified in the Bluetooth Core Spec.  This is similar to the case of unfunctional `DLE = True` as described in Notes 1 & 2. 
+
+I am not sure if these problems are solved in the latest models.
