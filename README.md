@@ -1,16 +1,16 @@
 # xoss_sync
-Python (**CPython** and **Micropython**) codes to fetch FIT files from **XOSS G+** cyclo-computer over bluetooth (BLE) for you.
+Python (**CPython** and **MicroPython**) codes to fetch FIT files from **XOSS G+** cyclo-computer over bluetooth (BLE) for you.
 
-(C) 2024 [ekspla](https://github.com/ekspla/xoss_sync)
+(C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
 
 A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss). 
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-**The PC version** (```xoss_sync.py```) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle (UB400, v4.0, CSR8510 
-chip)/Intel Wireless (v5.1), Python-3.8.6/3.12.6 and Bleak-0.22.2.
+**The PC (CPython) version** (```xoss_sync.py```) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle 
+(UB400, v4.0, CSR8510 chip)/Intel Wireless (v5.1), Python-3.8.6/3.12.6 and Bleak-0.22.2.
 
-**The Micropython (MPY) version** (```mpy_xoss_sync.py```) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, SD card, 
-and aioble.  After a bit of modification (changes in the path to /sd), this code was also tested with a unix-port of MPY-1.23.0(+ 
+**The MicroPython (MPY) version** (```mpy_xoss_sync.py```) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, 
+micro SD card, and aioble.  After a bit of modification (changes in the path to /sd), this code was also tested with a unix-port of MPY-1.23.0(+ 
 [PR#14006](https://github.com/micropython/micropython/pull/14006))/aioble on the same PC-Linux-x64 and TPLink UB400.
 
 ## Features
@@ -23,19 +23,19 @@ These scripts allow you to:
 ## Usage (PC version)
 1. Install bluetooth low energy interface/driver software on your PC.
 
-2. Check if your device and the PC are paired.
+2. Check if your device and the PC can be paired.
 
-3. Install [python](https://www.python.org/) (of course).
+3. Install [Python](https://www.python.org/) (of course).
 
-4. Install [bleak](https://pypi.org/project/bleak/):
+4. Install [Bleak](https://pypi.org/project/bleak/):
 
-```
+``` Shell
 pip install bleak
 ```
 
 5. Download and run the script ```python xoss_sync.py```:
 
-```
+``` Shell
 D:\backup\Bicycle\XOSS\python>python xoss_sync.py
 Scanning for Bluetooth devices...
 Found device: XOSS G-040989 - EC:37:9F:xx:yy:zz
@@ -69,18 +69,19 @@ Skip: 20240601060515.fit
 D:\backup\Bicycle\XOSS\python>
 ```
 
-Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work.
-C.f. [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
+Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work. 
+For the other devices such as Cycplus, you may have to change the ```TARGET_NAME``` appropriately.
+[Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 
-## Usage (Micropython version)
+## Usage (MicroPython version)
 1. Install SD card/interface on your ESP32 board.
 
-2. Install [Micropython](https://micropython.org/) (of course).
+2. Install [MicroPython](https://micropython.org/) (of course).
 
 3. Install [aioble](https://github.com/micropython/micropython-lib/tree/master/micropython/bluetooth/aioble):
 
-```
+``` Shell
 mpremote mip install aioble
 ```
 
@@ -106,7 +107,8 @@ Modify ```async def _connect()``` in aioble/central.py:
 +           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
 ```
 
-Alternatively, if you have installed the latest aioble after [commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
+Alternatively, if you have installed the latest aioble after 
+[commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
 
 modify ```async def run()``` in mpy_xoss_sync.py:
 ``` Diff
@@ -135,37 +137,38 @@ The connection intervals were measured by using
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
        - 50.0 ms connection interval (measured); this could not be changed (see Note 4).
-- PC/Bleak version
+- CPython/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
        - 15.0 ms connection interval (measured).
-    - Windows11 and Intel wireless, 00:08:41 (3.6 kbps).
+    - Windows11 and Intel Wireless, 00:08:41 (3.6 kbps).
        - 60.0 ms connection interval (measured).
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
        - 50.0 ms connection interval (measured).
-- MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8)
+- MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8; MPY-Linux = unix-port on PC-Linux-x64/TPLink UB400)
     - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
        - 50.0 ms connection interval (measured).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
        - 11.25 ms connection interval (measured).
     - MPY/modified aioble(conn_intervals=11.5 ms), ESP32-S3, 00:03:46 (8.3 kbps).
-    - MPY/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no garbage-collection, ESP32-S3, 00:02:42 (11.6 kbps).
+    - MPY/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no explicit garbage-collection (GC), ESP32-S3, 00:02:42 (11.6 kbps).
        - Further optimization requires [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
 ; change ```CONFIG_FREERTOS_HZ``` from default value of 100 Hz \[10 ms\] to 1000 Hz \[1 ms\].
-    - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, ESP32-S3, 00:02:05 (15.0 kbps).
+    - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, ESP32-S3, 00:02:05 (15.0 kbps).
        - 7.5 ms connection interval (measured).
        - While the client (mpy_xoss_sync.py) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), **the throughput is 
 determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no packets sent from XOSS-G+).  **Typically, 2-4 ACKs 
-(using 2-4 connection events) are necessary irrespective of connection intervals**.  The theoretical limit of 3 connections/block, as shown below, does 
-not occur because of the unresponsiveness.  See example sniffer logs of [7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
-and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of the intervals, 
-may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52832/) in XOSS-G+.
-    - MPY(ports/unix)/modified aioble(conn_intervals=7.5 ms), optimized delays and no garbage-collection, PC-Linux-x64 and TPLink UB400, 00:02:25 (13.0 kbps).
+(using 2-4 connection events) are necessary irrespective of connection intervals**.  The theoretical limit of 3 connections/block, as shown below, 
+does not occur because of the unresponsiveness.  See example sniffer logs of 
+[7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
+and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of 
+the intervals, may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52832/) in XOSS-G+.
+    - MPY/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, MPY-Linux, 00:02:25 (13.0 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; 
-[BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an unnecessary empty packet 
-is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
+[BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an unnecessary 
+empty packet is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
     - Using [a pair of test codes](https://github.com/ekspla/micropython_aioble_examples) (```nus_modem_server.py```, ```nus_modem_client.py```): 
-MPY/PC-Linux-x64 (server) --> MPY/ESP32-S3 (client), 00:01:08 (27.7 kbps).
+MPY-Linux (server) --> MPY/ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was significantly faster 
 [without the strange unresponsive delays caused by XOSS-G+](https://github.com/ekspla/xoss_sync/blob/main/reference/test_code_pair_7r5ms.png).
@@ -175,13 +178,14 @@ Theoretical limit using 11.5 ms connection interval on MPY/aioble:
 
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
 so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections + 1 connection for ACK in YMODEM.
+(The 6-packet limit in XOSS-G+ is, probably, required for compatibility to very old mobile phones.)
 
 87 connections/s * (128 data bytes / 3 connections) * 8 bits/byte = 29.7 kbps \[this would be 45.5 kbps for 7.5 ms interval\].
 
 
 On Win11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
 respectively.  There is no API in Bleak on Windows to change this setting though.  The measured throughput of 3.6 kbps on Win11 using 
-Intel wireless adaptor (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value using the sniffer.
+Intel Wireless adapter (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value using the sniffer.
 On Linux, the min/max connection intervals may be specified by the user (see below).
 
 4. Conn_min_interval/conn_max_interval on Linux kernels.
