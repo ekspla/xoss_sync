@@ -35,7 +35,7 @@ pip install bleak
 
 5. Download and run the script ```python xoss_sync.py```:
 
-``` Shell
+```
 D:\backup\Bicycle\XOSS\python>python xoss_sync.py
 Scanning for Bluetooth devices...
 Found device: XOSS G-040989 - EC:37:9F:xx:yy:zz
