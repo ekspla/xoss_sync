@@ -1,5 +1,6 @@
 # xoss_sync
 Python (**CPython** and **MicroPython**) codes to fetch FIT files from **XOSS G+** cyclo-computer over bluetooth (BLE) for you.
+The codes make you free from proprietary XOSS app/software on the cloud; you take full control of your gps track log files in FIT format.
 
 (C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
 
