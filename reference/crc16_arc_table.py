@@ -33,8 +33,20 @@ TABLE = (
             0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
         )
 
+TABLE_HALF = (
+            0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+            0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
+            )
+
 def crc16_arc(byte_array):
     crc = 0
     for x in byte_array:
-        crc = (crc >> 8) ^ TABLE[(crc ^ x) & 0xff];
+        crc = (crc >> 8) ^ TABLE[(crc ^ x) & 0xff]
+    return crc
+
+def crc16_arc_tbl_half(byte_array):
+    crc = 0
+    for x in byte_array:
+        crc = (crc >> 4) ^ TABLE_HALF[(crc ^ x) & 0x0F]
+        crc = (crc >> 4) ^ TABLE_HALF[(crc ^ (x >> 4)) & 0x0F]
     return crc
