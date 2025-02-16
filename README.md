@@ -119,7 +119,8 @@ modify ```async def run()``` in mpy_xoss_sync.py:
 
 The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill. 
 For those working together with web client/server in memory constrained systems, I would suggest using either 
-the ordinary one (as shown in the CPython version) or LUT with index-width of four bits (16 elements).
+the ordinary one (as shown in the CPython version) or 
+[LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py).
 
 ## Limitation
 The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
