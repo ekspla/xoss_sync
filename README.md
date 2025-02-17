@@ -96,6 +96,8 @@ mpremote mip install aioble
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
 The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with unix-port of MPY-1.23.0/aioble on PC-Linux-x64 (Core-i5).
 
+For the other devices such as Cycplus, you may have to change the ```_TARGET_NAME``` appropriately.
+
 5. Optional
 
 Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and 
