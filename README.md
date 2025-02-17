@@ -151,15 +151,15 @@ The connection intervals were measured by using
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
        - 50.0 ms connection interval (measured).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8; MPY-Linux = unix-port on PC-Linux-x64/TPLink UB400)
-    - MPY/aioble, ESP32, 00:07:11 (4.4 kbps).
+    - ESP32/aioble, 00:07:11 (4.4 kbps).
        - 50.0 ms connection interval (measured).
-    - MPY/modified aioble(conn_intervals=11.5 ms), ESP32, 00:04:04 (7.7 kbps).
+    - ESP32/modified aioble(conn_intervals=11.5 ms), 00:04:04 (7.7 kbps).
        - 11.25 ms connection interval (measured).
-    - MPY/modified aioble(conn_intervals=11.5 ms), ESP32-S3, 00:03:46 (8.3 kbps).
-    - MPY/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no explicit garbage-collection (GC), ESP32-S3, 00:02:42 (11.6 kbps).
+    - ESP32-S3/modified aioble(conn_intervals=11.5 ms), 00:03:46 (8.3 kbps).
+    - ESP32-S3/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no explicit garbage-collection (GC), 00:02:42 (11.6 kbps).
        - Further optimization requires [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
 ; change ```CONFIG_FREERTOS_HZ``` from default value of 100 Hz \[10 ms\] to 1000 Hz \[1 ms\].
-    - MPY(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, ESP32-S3, 00:02:05 (15.0 kbps).
+    - ESP32-S3(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, 00:02:05 (15.0 kbps).
        - 7.5 ms connection interval (measured).
        - While the client (mpy_xoss_sync.py) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), **the throughput is 
 determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no packets sent from XOSS-G+).  **Typically, 2-4 ACKs 
@@ -168,13 +168,13 @@ does not occur because of the unresponsiveness.  See example sniffer logs of
 [7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
 and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of 
 the intervals, may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52832/) in XOSS-G+.
-    - MPY/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, MPY-Linux, 00:02:25 (13.0 kbps).
+    - MPY-Linux/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, 00:02:25 (13.0 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; 
 [BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an unnecessary 
 empty packet is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
     - Using [a pair of test codes](https://github.com/ekspla/micropython_aioble_examples) (```nus_modem_server.py```, ```nus_modem_client.py```): 
-MPY-Linux (server) --> MPY/ESP32-S3 (client), 00:01:08 (27.7 kbps).
+MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was significantly faster 
 [without the strange unresponsive delays caused by XOSS-G+](https://github.com/ekspla/xoss_sync/blob/main/reference/test_code_pair_7r5ms.png).
