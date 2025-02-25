@@ -53,7 +53,7 @@ OK_TIME_SET = bytearray([0x55]) # r
 VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
 
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
-#VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
+VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
 VALUE_C = bytearray([0x43])                               # 'C'
 #VALUE_G = bytearray([0x47])                               # 'G'
 VALUE_ACK = bytearray([0x06])                             # ACK
@@ -70,12 +70,17 @@ class BluetoothFileTransfer:
         self.notification_data = bytearray()
         # **Block**
         self.is_block = False
-        self.block_buf = bytearray(3 + 128 + 2)                                 # Header(SOH, num, ~num); data; CRC16
+        self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH, num, ~num); data(128 or 1024 bytes); CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
-        self.block_data = self.mv_block_buf[3:-2]
-        self.block_crc = self.mv_block_buf[-2:]
+        ##self.block_size = None
+        self.block_data = None
+        self.block_crc = None
+        self.block_size_data_crc = (
+            (3 + 128 + 2, self.mv_block_buf[3:131], self.mv_block_buf[131:133], ), # SOH
+            (3 + 1024 + 2, self.mv_block_buf[3:-2], self.mv_block_buf[-2:], ),     # STX
+        )
         self.block_error = False
         # **File**                                                               A file is made of blocks; a block is made of packets.
         self.data = bytearray()
@@ -149,8 +154,14 @@ class BluetoothFileTransfer:
         await self.read_block(client)
 
     async def read_block(self, client):
+        #_SOH = VALUE_SOH[0] # SOH == 128-byte data
+        _STX = VALUE_STX[0] # STX == 1024-byte data
         async def check_block_buf():
-            while self.is_block and self.idx_block_buf < 133: # c.f. 1+1+1+128+2=133 bytes (one block)
+            while self.idx_block_buf == 0:
+                await asyncio.sleep(0.01)
+            if not self.is_block: return
+            block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self_block_buf[0] == _STX)]
+            while self.idx_block_buf < block_size:
                 await asyncio.sleep(0.01)
 
         try:
