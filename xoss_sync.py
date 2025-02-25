@@ -160,7 +160,7 @@ class BluetoothFileTransfer:
             while self.idx_block_buf == 0:
                 await asyncio.sleep(0.01)
             if not self.is_block: return
-            block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self_block_buf[0] == _STX)]
+            block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.block_buf[0] == _STX)]
             while self.idx_block_buf < block_size:
                 await asyncio.sleep(0.01)
 
