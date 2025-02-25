@@ -157,7 +157,7 @@ class BluetoothFileTransfer:
         #_SOH = VALUE_SOH[0] # SOH == 128-byte data
         _STX = VALUE_STX[0] # STX == 1024-byte data
         async def check_block_buf():
-            while self.idx_block_buf == 0:
+            while self.is_block and self.idx_block_buf == 0:
                 await asyncio.sleep(0.01)
             if not self.is_block: return
             block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.block_buf[0] == _STX)]
