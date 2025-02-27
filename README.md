@@ -131,6 +131,8 @@ of YMODEM in part as followings.
 - The script expects a transport with MTU of 23, 128-byte data per block, and CRC16/ARC (not CRC16/XMODEM).  I am not sure
 if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data in YMODEM (see, Notes 1 & 2).
 
+- Update(FEB 2025):  1024-byte data block (STX) in YMODEM is now supposed to work only in CPython version, though it's not well tested.
+
 ## Notes
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
