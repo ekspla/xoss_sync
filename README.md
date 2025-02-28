@@ -125,7 +125,7 @@ the ordinary one (as shown in the CPython version) or
 [LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py).
 
 ## Limitation
-The script seems to work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
+The scripts work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
 of YMODEM in part as followings.
 
 - The script expects a transport with MTU of 23, 128-byte data per block, and CRC16/ARC (not CRC16/XMODEM).  I am not sure
