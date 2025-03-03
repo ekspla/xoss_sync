@@ -70,7 +70,7 @@ class BluetoothFileTransfer:
         self.notification_data = bytearray()
         # **Block**
         self.is_block = False
-        self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH, num, ~num); data(128 or 1024 bytes); CRC16
+        self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH/STX, num, ~num); data(128 or 1024 bytes); CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
