@@ -36,8 +36,8 @@ RX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 VALUE_IDLE = bytearray([0x04, 0x00, 0x04]) # r(ead)/w(rite)
 FILE_FETCH = bytearray([0x05]) # w
 OK_FILE_FETCH = bytearray([0x06]) # r
-#FILE_SEND = bytearray([0x07]) # w
-#OK_FILE_SEND = bytearray([0x08]) # r
+FILE_SEND = bytearray([0x07]) # w
+OK_FILE_SEND = bytearray([0x08]) # r
 VALUE_DISKSPACE = bytearray([0x09, 0x00, 0x09]) # w
 OK_DISKSPACE = bytearray([0x0a]) # r
 #FILE_DELETE = bytearray([0x0d]) # w
@@ -47,7 +47,7 @@ OK_DISKSPACE = bytearray([0x0a]) # r
 #ERR_FILE_NA = bytearray([0x12]) # r
 #VALUE_ERR_MEMORY = bytearray([0x13, 0x00, 0x13]) # r
 #VALUE_ERR_NO_IDLE = bytearray([0x14, 0x00, 0x14]) # r
-#ERR_FILE_PARSE = bytearray([0x15]) # r
+ERR_FILE_PARSE = bytearray([0x15]) # r
 TIME_SET = bytearray([0x54]) # w
 OK_TIME_SET = bytearray([0x55]) # r
 VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
@@ -63,18 +63,21 @@ VALUE_CAN = bytearray([0x18])                             # CAN
 
 AWAIT_NEW_DATA = bytearray(b'AwaitNewData')
 
+FILEPATH = "Setting.json"
+
 class BluetoothFileTransfer:
     def __init__(self):
         self.lock = asyncio.Lock()
         # **Packet**
         self.notification_data = bytearray()
+        self.mtu_size = 23
         # **Block**
         self.is_block = False
         self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH/STX, num, ~num); data(128 or 1024 bytes); CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
-        ##self.block_size = None
+        self.block_size = None
         self.block_data = None
         self.block_crc = None
         self.block_size_data_crc = (
@@ -85,6 +88,8 @@ class BluetoothFileTransfer:
         # **File**                                                               A file is made of blocks; a block is made of packets.
         self.data = bytearray()
         self.data_size = 0
+        self.data_read = 0
+
 
     def create_notification_handler(self):
         async def notification_handler(sender, data):
@@ -160,8 +165,8 @@ class BluetoothFileTransfer:
             while self.is_block and self.idx_block_buf == 0:
                 await asyncio.sleep(0.01)
             if not self.is_block: return
-            block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.block_buf[0] == _STX)]
-            while self.idx_block_buf < block_size:
+            self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.block_buf[0] == _STX)]
+            while self.idx_block_buf < self.block_size:
                 await asyncio.sleep(0.01)
 
         try:
@@ -270,6 +275,126 @@ class BluetoothFileTransfer:
         #await self.wait_until_data(client)                                             # Response starts with 0x55
         await asyncio.sleep(1) # Wait 1 sec because of no response from XOSS-G+ gen1.
 
+    async def send_file(self, client, filepath=FILEPATH):
+        self.is_block = False
+        self.data_size = 0
+        self.data_read = 0
+
+        def construct_block_zero():
+            header = bytes(f'{filename} {self.data_size}', 'utf-8')
+            self.block_data[:(n:=len(header))] = header
+            construct_block(n)
+
+        def construct_block(nbytes):
+            while nbytes < self.block_size - 5:
+                self.block_data[nbytes] = 0x00 # Zero padding to the end.
+                nbytes += 1
+            self.block_num = (self.block_num + 1) % 256
+            self.block_buf[0] = VALUE_STX[0] if use_stx else VALUE_SOH[0]
+            self.block_buf[1] = self.block_num
+            self.block_buf[2] = 0xFF ^ self.block_num
+            self.block_crc[:] = self.crc16_arc(self.block_data).to_bytes(2, 'big')
+
+        async def send_block(delay_s): # Send a block through packets.
+            # TODO: use self.mtu_size and use_stx for fragmentation.
+            for i in range(6):
+                await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[i*20:(i+1)*20], 0.01)
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[120:133], 0.01)
+            await asyncio.sleep(delay_s)
+
+        if self.notification_data != VALUE_IDLE:
+            if not await self.get_idle_status(client): return
+
+        # Request to send the File.
+        self.data_size = os.path.getsize(filepath)
+        filename = filepath.split('/')[-1]
+        #filename = filepath
+        self.notification_data = AWAIT_NEW_DATA
+        value_file_send = self.make_command(FILE_SEND, filename)                     # Request starts with 0x07
+        value_ok_file_send = self.make_command(OK_FILE_SEND, filename)               # Response starts with 0x08
+        await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, value_file_send, 0.01)
+        # It's stange that 'C' may arrive earlier than the response.
+        cmd_accepted = c_received = False
+        retries = 3
+        while retries > 0:
+            await self.wait_until_data(client)
+            if self.notification_data == value_ok_file_send:
+                cmd_accepted = True
+            elif self.notification_data == VALUE_C:                                   # Receive 'C'.
+                c_received = True
+            if cmd_accepted and c_received:
+                break
+            else:
+                self.notification_data = AWAIT_NEW_DATA
+                retries -= 1
+        if retries == 0:
+            print("Send file not accepted.")
+            return
+
+        # Send block number zero.  Always use SOH for block zero.
+        self.block_num = -1
+        self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(use_stx:=False)]
+        construct_block_zero()
+        retries = 3
+        while retries > 0:
+            self.notification_data = AWAIT_NEW_DATA
+            await send_block(delay_s=0.01)
+            await self.wait_until_data(client)
+            if self.notification_data == VALUE_ACK:                                  # Receive ACK.
+                break
+            retries -= 1
+        if retries == 0: # Too many errors; cancel transport.
+            print("Too many errors.")
+            ##await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
+            return
+
+        self.notification_data = AWAIT_NEW_DATA
+        await self.wait_until_data(client)
+        if self.notification_data != VALUE_C:                                        # Receive 'C'.
+            return
+        else:
+            print("The second 'C' was received.")
+
+        # Send blocks of number >= 1
+        use_stx = True if self.mtu_size > 23 else False
+        self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(use_stx)]
+        with open(filepath, 'rb') as f:
+            while client.is_connected:
+                if (nbytes := f.readinto(self.block_data)):
+                    construct_block(nbytes)
+                    self.data_read += nbytes
+                    while True:
+                        self.notification_data = AWAIT_NEW_DATA
+                        await send_block(delay_s=0.01)
+                        await self.wait_until_data(client)
+                        if self.notification_data == VALUE_ACK:
+                            break
+                else:
+                    self.notification_data = AWAIT_NEW_DATA
+                    await asyncio.sleep(0.1) # This avoids EOT to be sent too fast.
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_EOT, 0.01) # Send EOT
+                    await self.wait_until_data(client)
+                    if self.notification_data != VALUE_NAK:                              # Receive NAK
+                        return
+                    self.notification_data = AWAIT_NEW_DATA
+                    await asyncio.sleep(0.1) # This avoids EOT to be sent too fast.
+                    await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_EOT, 0.01) # Send EOT
+                    await self.wait_until_data(client)
+                    if self.notification_data != VALUE_ACK:                              # Receive ACK
+                        return
+                    self.notification_data = AWAIT_NEW_DATA
+                    await self.wait_until_data(client)
+                    if self.crc8_xor(self.notification_data) == 0:
+                        if self.notification_data.startswith(ERR_FILE_PARSE):
+                            print("Error: file parse.")
+                        elif self.notification_data == VALUE_IDLE:
+                            print('File transmission finished.') # You hear a short beep from your device.
+                            print(f'File size: {self.data_size}.  Transmitted size: {self.data_read}.')
+                            return
+                        else:
+                                print(f"Unexpected response: {self.notification_data}")
+                    else: print("Error: CRC.")
+
     async def run(self):
         device = await self.discover_device(TARGET_NAME)
         if not device:
@@ -279,6 +404,7 @@ class BluetoothFileTransfer:
             if client.is_connected:
                 print(f"Connected to {device.name}")
                 ##print(f"MTU {client.mtu_size}")
+                ##self.mtu_size = client.mtu_size
 
                 await self.start_notify(client, CTL_CHARACTERISTIC_UUID)
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
@@ -286,6 +412,10 @@ class BluetoothFileTransfer:
 
                 #await self.time_set(client)
                 await self.read_diskspace(client)
+
+                ##await self.fetch_file(client, 'Setting.json')
+                ##await self.send_file(client, 'Setting.json')
+                ##return
 
                 await self.fetch_file(client, 'filelist.txt')
                 fit_files = self.extract_fit_filenames('filelist.txt')
