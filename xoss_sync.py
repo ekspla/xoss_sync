@@ -280,6 +280,7 @@ class BluetoothFileTransfer:
         self.data_size = self.data_read = 0
 
         def construct_block_zero():
+            self.block_num = -1
             header = bytes(f'{filename} {self.data_size}', 'utf-8')
             self.block_data[:(n:=len(header))] = header
             construct_block(n)
@@ -331,7 +332,6 @@ class BluetoothFileTransfer:
             return
 
         # Send block number zero.  Always use SOH for block zero.
-        self.block_num = -1
         self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(use_stx:=False)]
         construct_block_zero()
         retries = 3
