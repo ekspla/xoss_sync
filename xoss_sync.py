@@ -277,8 +277,7 @@ class BluetoothFileTransfer:
 
     async def send_file(self, client, filepath=FILEPATH):
         self.is_block = False
-        self.data_size = 0
-        self.data_read = 0
+        self.data_size = self.data_read = 0
 
         def construct_block_zero():
             header = bytes(f'{filename} {self.data_size}', 'utf-8')
@@ -295,17 +294,17 @@ class BluetoothFileTransfer:
             self.block_buf[2] = 0xFF ^ self.block_num
             self.block_crc[:] = self.crc16_arc(self.block_data).to_bytes(2, 'big')
 
-        async def send_block(delay_s): # Send a block through packets.
+        async def send_block(delay=0): # Send a block through packets.
             # TODO: use self.mtu_size and use_stx for fragmentation.
             for i in range(6):
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[i*20:(i+1)*20], 0.01)
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[120:133], 0.01)
-            await asyncio.sleep(delay_s)
+            await asyncio.sleep(delay)
 
         if self.notification_data != VALUE_IDLE:
             if not await self.get_idle_status(client): return
 
-        # Request to send the File.
+        # Request to send the file.
         self.data_size = os.path.getsize(filepath)
         filename = filepath.split('/')[-1]
         #filename = filepath
@@ -338,22 +337,18 @@ class BluetoothFileTransfer:
         retries = 3
         while retries > 0:
             self.notification_data = AWAIT_NEW_DATA
-            await send_block(delay_s=0.01)
+            await send_block(0.01)
             await self.wait_until_data(client)
-            if self.notification_data == VALUE_ACK:                                  # Receive ACK.
-                break
+            if self.notification_data == VALUE_ACK: break                            # Receive ACK.
             retries -= 1
         if retries == 0: # Too many errors; cancel transport.
             print("Too many errors.")
-            ##await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_CAN, 0.1)    # Send CAN (cancel).
             return
 
         self.notification_data = AWAIT_NEW_DATA
         await self.wait_until_data(client)
-        if self.notification_data != VALUE_C:                                        # Receive 'C'.
-            return
-        else:
-            print("The second 'C' was received.")
+        if self.notification_data != VALUE_C: return                                  # Receive 'C'.
+        print("The second 'C' was received.")
 
         # Send blocks of number >= 1
         use_stx = True if self.mtu_size > 23 else False
@@ -365,23 +360,20 @@ class BluetoothFileTransfer:
                     self.data_read += nbytes
                     while True:
                         self.notification_data = AWAIT_NEW_DATA
-                        await send_block(delay_s=0.01)
+                        await send_block(0.01)
                         await self.wait_until_data(client)
-                        if self.notification_data == VALUE_ACK:
-                            break
+                        if self.notification_data == VALUE_ACK: break
                 else:
                     self.notification_data = AWAIT_NEW_DATA
                     await asyncio.sleep(0.1) # This avoids EOT to be sent too fast.
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_EOT, 0.01) # Send EOT
                     await self.wait_until_data(client)
-                    if self.notification_data != VALUE_NAK:                              # Receive NAK
-                        return
+                    if self.notification_data != VALUE_NAK: return                       # Receive NAK
                     self.notification_data = AWAIT_NEW_DATA
                     await asyncio.sleep(0.1) # This avoids EOT to be sent too fast.
                     await self.send_cmd(client, RX_CHARACTERISTIC_UUID, VALUE_EOT, 0.01) # Send EOT
                     await self.wait_until_data(client)
-                    if self.notification_data != VALUE_ACK:                              # Receive ACK
-                        return
+                    if self.notification_data != VALUE_ACK: return                        # Receive ACK
                     self.notification_data = AWAIT_NEW_DATA
                     await self.wait_until_data(client)
                     if self.crc8_xor(self.notification_data) == 0:
@@ -390,9 +382,8 @@ class BluetoothFileTransfer:
                         elif self.notification_data == VALUE_IDLE:
                             print('File transmission finished.') # You hear a short beep from your device.
                             print(f'File size: {self.data_size}.  Transmitted size: {self.data_read}.')
-                            return
                         else:
-                                print(f"Unexpected response: {self.notification_data}")
+                            print(f"Unexpected response: {self.notification_data}")
                     else: print("Error: CRC.")
 
     async def run(self):
