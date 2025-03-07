@@ -74,6 +74,21 @@ Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56)
 For the other devices such as Cycplus, you may have to change the ```TARGET_NAME``` appropriately.
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
+6. Change settings: 
+
+Settings of the device \(e.g. timezone, backlight, autopause, etc.\) can be changed via JSON file. In my case \(XOSS-G+ gen1\), 
+
+ a. Download the file.
+``` Python
+await self.fetch_file(client, 'Setting.json')
+```
+ b. Modify the file.
+
+ c. Upload the modified file.  After the successful upload, you hear a short beep from the device. 
+``` Python
+await self.send_file(client, 'Setting.json')
+```
+
 
 ## Usage (MicroPython version)
 1. Install SD card/interface on your ESP32 board.
