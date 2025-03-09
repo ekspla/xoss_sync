@@ -72,7 +72,6 @@ class BluetoothFileTransfer:
         self.notification_data = bytearray()
         self.mtu_size = 23
         # **Block**
-        self.is_download = False
         self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH/STX, num, ~num); data(128 or 1024 bytes); CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
@@ -299,12 +298,14 @@ class BluetoothFileTransfer:
             self.block_buf[2] = 0xFF ^ self.block_num
             self.block_crc[:] = self.crc16_arc(self.block_data).to_bytes(2, 'big')
 
-        async def send_block(delay=0): # Send a block through packets.
+        async def send_block(delay=0.01): # Send a block through packets.
             self.upload_handshake = None # Clear handshake signal before sending a block.
-            # TODO: use self.mtu_size and use_stx for fragmentation.
-            for i in range(6):
-                await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[i*20:(i+1)*20], 0.01)
-            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[120:133], 0.01)
+            mtu = self.mtu_size - 3
+            idx = 0
+            n = self.block_size - mtu
+            while idx < n:
+                await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[idx:(idx := idx + mtu)], delay)
+            await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[idx:self.block_size], delay)
             await asyncio.sleep(delay)
 
         async def send_eot(delay=0.01):
@@ -325,7 +326,6 @@ class BluetoothFileTransfer:
         if self.notification_data != VALUE_IDLE:
             if not await self.get_idle_status(client): return
 
-        self.mtu_size = 23 # TODO: Fix it when the fragmentation is implemented.
         # Request to send the file.
         self.data_size = os.path.getsize(filepath)
         filename = filepath.split('/')[-1]
@@ -400,7 +400,7 @@ class BluetoothFileTransfer:
             if client.is_connected:
                 print(f"Connected to {device.name}")
                 ##print(f"MTU {client.mtu_size}")
-                ##self.mtu_size = client.mtu_size # TODO: Fix it when the fragmentation in upload is implemented.
+                self.mtu_size = client.mtu_size
 
                 await self.start_notify(client, CTL_CHARACTERISTIC_UUID)
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
