@@ -84,10 +84,11 @@ await self.fetch_file(client, 'Setting.json')
 ```
  b. Modify the file.
 
- c. Upload the modified file.  After the successful upload, you hear a short beep from the device. 
+ c. Upload the modified file.
 ``` Python
 await self.send_file(client, 'Setting.json')
 ```
+After the successful upload, you hear a short beep from the device. 
 
 
 ## Usage (MicroPython version)
