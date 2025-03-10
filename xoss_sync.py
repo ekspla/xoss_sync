@@ -306,7 +306,7 @@ class BluetoothFileTransfer:
             while idx < n:
                 await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[idx:(idx := idx + mtu)], delay)
             await self.send_cmd(client, RX_CHARACTERISTIC_UUID, self.mv_block_buf[idx:self.block_size], delay)
-            await asyncio.sleep(delay)
+            await asyncio.sleep(0)
 
         async def send_eot(delay=0.01):
             self.upload_handshake = None # Clear handshake signal before sending an EOT.
@@ -352,13 +352,14 @@ class BluetoothFileTransfer:
             if await receive_handshake() == VALUE_ACK:                                # Receive ACK.
                 async with self.lock:
                     self.upload_handshake = None # Clear to receive 'C'.
-                break
+                if await receive_handshake() == VALUE_C:                              # Receive 'C'.
+                    break
+            elif self.upload_handshake == VALUE_C: break                              # ACK was overwritten by 'C'.
             retries -= 1
-        if (retries == 0) or (await receive_handshake() != VALUE_C):                  # Receive 'C'.
-            print("Too many errors/'C' not received.")
+        if retries == 0:
+            print("Too many errors.")
             self.is_upload = False
             return
-        print("The second 'C' was received.")
 
         # Send blocks of number >= 1
         use_stx = True if self.mtu_size > 23 else False
