@@ -235,3 +235,6 @@ It seems that the client's request of changing from 1M to 2M is not handled appr
 Spec. This is similar to the case of unfunctional `Data Length Extension (DLE) = True` (BLE 4.2) as described in Notes 1 & 2. 
 
 I am not sure if these problems are solved in the latest models.
+
+## Appendix
+[A DIY Battery Replacement](https://github.com/ekspla/xoss_sync/blob/main/reference/batt_replacement.md)
