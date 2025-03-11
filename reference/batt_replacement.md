@@ -26,10 +26,12 @@ connect the new battery wires in the opposite direction.
 A replacement battery (503035 with a protection circuit, 3.7 V 500 mAh) could be easily 
 obtained on any ec stores (Amazon, ebay, Aliexpress, Taobao, etc.) for less than 5 US$.
 
-After the replacement, I switched off the power and closed the backpanel without the glue.
+After the replacement by soldering, I switched off the power and closed the backpanel 
+without the glue.
 
 
 The capacity of the degraded battery at full charge was measured by a constant current 
 sink of 0.5C to be 260 mAh at room temperature of 20 deg C.  It was degraded in 
 capacity to about a half.
+
 ![Fig_old_LiPo_capacity.png](https://github.com/ekspla/xoss_sync/blob/main/reference/Fig_old_LiPo_capacity.png "Degraded Capacity")
