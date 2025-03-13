@@ -148,6 +148,9 @@ of YMODEM in part as followings.
 if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data in YMODEM (see, Notes 1 & 2).
 
 - Update(FEB 2025):  1024-byte data block (STX) in YMODEM is now supposed to work only in CPython version, though it's not well tested.
+If you can control MTU size, 206 which is used in [f-xoss project](https://github.com/DCNick3/f-xoss) 
+\(see below\) may be a good number because an STX block of 1029 bytes in YMODEM fits quite well in 
+1030 = mtu*5.
 
 ## Notes
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
