@@ -343,8 +343,9 @@ class BluetoothFileTransfer:
             self.is_upload = False
             return
 
-        # Send block number zero.  Always use SOH for block zero.
-        self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(use_stx:=False)]
+        # Send block number zero.
+        use_stx = True if self.mtu_size > 23 else False
+        self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(use_stx)]
         construct_block_zero()
         retries = 3
         while retries > 0:
@@ -362,8 +363,6 @@ class BluetoothFileTransfer:
             return
 
         # Send blocks of number >= 1
-        use_stx = True if self.mtu_size > 23 else False
-        self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(use_stx)]
         self.data_read = 0
         with open(filepath, 'rb') as f:
             while client.is_connected:
