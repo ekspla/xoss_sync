@@ -289,7 +289,8 @@ class BluetoothFileTransfer:
             construct_block(n)
 
         def construct_block(nbytes):
-            while nbytes < self.block_size - 5:
+            block_data_size = self.block_size - 5
+            while nbytes < block_data_size:
                 self.block_data[nbytes] = 0x00 # Zero padding to the end.
                 nbytes += 1
             self.block_num = (self.block_num + 1) % 256
