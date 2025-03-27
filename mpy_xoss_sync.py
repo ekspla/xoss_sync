@@ -178,6 +178,7 @@ class BluetoothFileTransfer:
         await self.read_block()
 
     async def read_block(self):
+        # [ESP32] A cleaner implementation with asyncio.Event() than this polling function lead to a decreased throughput.
         async def check_block_buf():
             while self.is_block and self.idx_block_buf < 133: # c.f. 1+1+1+128+2=133 bytes (one block)
                 await asyncio.sleep_ms(10)
