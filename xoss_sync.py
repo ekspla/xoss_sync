@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python
 #coding:utf-8
 #
-# (c) 2024 ekspla.
+# (c) 2024-2025 ekspla.
 # MIT License.  https://github.com/ekspla/xoss_sync
 #
 # A quick/preliminary version of code to fetch fit files from XOSS G+ cyclo-computer, inspired by f-xoss project 
@@ -16,6 +16,8 @@
 # 4. use of slice assignment and memoryview in handling notification packets and blocks.
 # 5. tested with XOSS G+ instead of Cycplus M2.
 # 6. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
+# 7. adiition of send_file() to modify device settings via JSON file (e.g. Setting.json).
+# 8. support for STX (1024-byte) block in YMODEM, though it's not well tested.
 #
 # TODO:
 # 1. handling of fit-file data more efficiently on memory.

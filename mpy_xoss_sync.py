@@ -1,4 +1,4 @@
-# (c) 2024 ekspla.
+# (c) 2024-2025 ekspla.
 # MIT License.  https://github.com/ekspla/xoss_sync
 #
 # A quick/preliminary version of code to fetch fit files from XOSS G+ cyclo-computer, inspired by f-xoss project 
