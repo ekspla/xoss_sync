@@ -71,7 +71,7 @@ D:\backup\Bicycle\XOSS\python>
 ```
 
 Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work. 
-For the other devices such as Cycplus, you may have to change the ```TARGET_NAME``` appropriately.
+For the other devices such as Cycplus and CooSpo, you may have to change the ```TARGET_NAME``` appropriately.
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 6. Change settings: 
@@ -112,7 +112,7 @@ mpremote mip install aioble
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
 The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with unix-port of MPY-1.23.0/aioble on PC-Linux-x64 (Core-i5).
 
-For the other devices such as Cycplus, you may have to change the ```_TARGET_NAME``` appropriately.
+For the other devices such as Cycplus and CooSpo, you may have to change the ```_TARGET_NAME``` appropriately.
 
 5. Optional
 
