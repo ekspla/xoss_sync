@@ -338,10 +338,7 @@ class BluetoothFileTransfer:
         retries = 2
         while True:
             try:
-                #connection = await device.connect(timeout_ms=60_000)
-                connection = await device.connect(
-                    timeout_ms=60_000, 
-                    scan_duration_ms=5_000, min_conn_interval_us=7_500, max_conn_interval_us=7_500)
+                connection = await device.connect(timeout_ms=60_000)
                 break
             except asyncio.TimeoutError:
                 retries -= 1
