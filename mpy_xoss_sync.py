@@ -57,7 +57,7 @@ OK_DISKSPACE = bytearray([0x0a]) # r
 VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
 
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
-#VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
+VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
 VALUE_C = bytearray([0x43])                               # 'C'
 #VALUE_G = bytearray([0x47])                               # 'G'
 VALUE_ACK = bytearray([0x06])                             # ACK
@@ -74,40 +74,49 @@ class BluetoothFileTransfer:
         self.tx_characteristic = None
         self.rx_characteristic = None
         # **Packet**
+        self.mtu_size = 23
         self.notification_data = bytearray()
         # **Block**
         self.is_block = False
-        self.block_data_size = 128
-        self.block_buf = bytearray(3 + self.block_data_size + 2)               # Header(SOH, num, ~num); data; CRC16
+        self.use_stx = False # True/False = STX/SOH
+        self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH/STX, num, ~num); data(128 or 1024 bytes); CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
-        self.block_data = self.mv_block_buf[3:-2]
-        self.block_crc = self.mv_block_buf[-2:]
+        self.block_size = None
+        self.block_data = None
+        self.block_crc = None
+        self.block_size_data_crc = (
+            (3 + 128 + 2, self.mv_block_buf[3:131], self.mv_block_buf[131:133], ), # SOH
+            (3 + 1024 + 2, self.mv_block_buf[3:-2], self.mv_block_buf[-2:], ),     # STX
+        )
         self.block_error = False
         # **File**                                                               A file is made of blocks; a block is made of packets.
         self.data_size = 0
         self.data_written = 0
         self.filename = ''
         self.is_write_mode = False
-        self.write_buf = bytearray(self.block_data_size * 4)
+        self.write_buf = bytearray(128 * 4)                                      # This write buffer is exclusively used in SOH blocks.
         self.mv_write_buf = memoryview(self.write_buf)
-        self.write_buf_page = tuple(self.mv_write_buf[i*self.block_data_size:(i+1)*self.block_data_size] for i in range(4))
+        self.write_buf_page = tuple(self.mv_write_buf[i * 128:(i+1) * 128] for i in range(4))
         self.idx_write_buf = 0
 
     async def notify_handler(self):
         _EOT = bytes(VALUE_EOT)
+        _STX = VALUE_STX[0]
         queue = self.tx_characteristic._notify_queue
 
-        def append_to_block_buf(data):
-            if (len_data := len(data)):
-                self.block_buf[self.idx_block_buf:self.idx_block_buf + len_data] = data
-                self.idx_block_buf += len_data
+        def append_to_block_buf(d):
+            if (len_d := len(d)):
+                self.block_buf[self.idx_block_buf:self.idx_block_buf + len_d] = d
+                self.idx_block_buf += len_d
 
-        async def fill_queue(n, timeout_ms):
+        async def fill_queue(timeout_ms):
             async def q():
-                while len(queue) < n:
-                    await asyncio.sleep_ms(10)
+                n = to_be_filled
+                while sum((len(x) for x in queue)) < n:
+                    #await asyncio.sleep_ms(10)
+                    await asyncio.sleep_ms(2)
             try:
                 await asyncio.wait_for_ms(q(), timeout_ms)
             except asyncio.TimeoutError:
@@ -119,7 +128,10 @@ class BluetoothFileTransfer:
                 self.is_block = False
                 self.notification_data[:] = data
             elif self.is_block:                                                     # Packets should be combined to make a block.
-                await fill_queue(n=6, timeout_ms=150)
+                self.use_stx = True if data[0] == _STX else False
+                self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.use_stx)]
+                if (to_be_filled := self.block_size - len(data)) > 0:
+                    await fill_queue(timeout_ms=150)
                 append_to_block_buf(data)
                 while len(queue) >= 1:
                     append_to_block_buf(queue.popleft())
@@ -180,21 +192,31 @@ class BluetoothFileTransfer:
     async def read_block(self):
         # [ESP32] A cleaner implementation with asyncio.Event() than this polling function lead to a decreased throughput.
         async def check_block_buf():
-            while self.is_block and self.idx_block_buf < 133: # c.f. 1+1+1+128+2=133 bytes (one block)
-                await asyncio.sleep_ms(10)
+            while self.is_block and self.idx_block_buf == 0:
+                #await asyncio.sleep_ms(10)
+                await asyncio.sleep_ms(2)
+            await asyncio.sleep_ms(0)
+            block_size = self.block_size
+            while self.is_block and self.idx_block_buf < block_size: # block_size = 133/1029 bytes in SOH/STX (one block)
+                #await asyncio.sleep_ms(10)
+                await asyncio.sleep_ms(2)
 
         def write_to_buf(data):
-            self.write_buf_page[self.idx_write_buf][:] = data
-            self.idx_write_buf += 1
-            if self.idx_write_buf == 4:
-                self.save_chunk_raw(self.write_buf)
-                self.idx_write_buf = 0
-            elif (self.data_written + self.block_data_size) == self.data_size:
-                flush_write_buf()
-            return self.block_data_size
+            if self.use_stx: # Do not use write_buf in STX.
+                if self.idx_write_buf > 0: flush_write_buf()
+                self.save_chunk_raw(data)
+            else:
+                self.write_buf_page[self.idx_write_buf][:] = data
+                self.idx_write_buf += 1
+                if self.idx_write_buf == 4:
+                    self.save_chunk_raw(self.write_buf)
+                    self.idx_write_buf = 0
+                elif (self.data_written + self.block_size - 5) == self.data_size:
+                    flush_write_buf()
+            return self.block_size - 5
 
         def flush_write_buf():
-            self.save_chunk_raw(self.mv_write_buf[:self.idx_write_buf * self.block_data_size])
+            self.save_chunk_raw(self.mv_write_buf[:self.idx_write_buf * 128])
             self.idx_write_buf = 0
 
         try:
@@ -204,7 +226,7 @@ class BluetoothFileTransfer:
                 self.block_error = True
             else:
                 if self.is_write_mode:                                                    # Blocks should be combined to make a file.
-                    if (self.data_written + self.block_data_size) <= self.data_size:
+                    if (self.data_written + self.block_size - 5) <= self.data_size:
                         self.data_written += write_to_buf(self.block_data)
                     else:
                         if self.idx_write_buf > 0: flush_write_buf()
@@ -328,7 +350,7 @@ class BluetoothFileTransfer:
                 service = await connection.service(_SERVICE_UUID)
                 self.ctl_characteristic = await service.characteristic(_CTL_CHARACTERISTIC_UUID)
                 self.tx_characteristic = await service.characteristic(_TX_CHARACTERISTIC_UUID)
-                self.tx_characteristic._notify_queue = deque((), 7)
+                self.tx_characteristic._notify_queue = deque((), 7)                     # TODO: check if 7 is sufficient for STX.
                 self.rx_characteristic = await service.characteristic(_RX_CHARACTERISTIC_UUID)
                 await self.ctl_characteristic.subscribe(notify=True)
                 await self.tx_characteristic.subscribe(notify=True)
@@ -338,6 +360,11 @@ class BluetoothFileTransfer:
                 return
 
             await self.read_diskspace()
+
+            # Increase MTU
+            await connection.exchange_mtu(mtu=209)
+            self.mtu_size = connection.mtu or self.mtu_size
+            print(f"MTU: {self.mtu_size}")
 
             if 'filelist.txt' in os.listdir('/sd'):
                 os.rename('/sd/filelist.txt', '/sd/filelist.old')
