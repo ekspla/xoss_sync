@@ -135,10 +135,10 @@ modify ```async def run()``` in mpy_xoss_sync.py:
 +               connection = await device.connect(timeout_ms=60_000, scan_duration_ms=5_000, min_conn_interval_us=11_500, max_conn_interval_us=11_500)
 ```
 
-The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill. 
-For those working together with web client/server in memory constrained systems, I would suggest using either 
-the ordinary one (as shown in the CPython version) or 
-[LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py).
+~~The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill. ~~
+For those working together with web client/server in memory constrained systems, I would suggest using ~~either ~~
+the ordinary one (as shown in the CPython version) ~~or ~~
+~~[LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py)~~.
 
 ## Limitation
 The scripts work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
