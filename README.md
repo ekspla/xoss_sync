@@ -137,7 +137,7 @@ modify ```async def run()``` in mpy_xoss_sync.py:
 
 Update(MAR2025): the default connection interval has been changed to 7_500 micro sec.  If you have installed aioble prior to 
 [the commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
-modify the cord appropriately.
+modify the code appropriately.
 
 
 ~~The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill.~~ 
