@@ -135,7 +135,7 @@ modify ```async def run()``` in mpy_xoss_sync.py:
 +               connection = await device.connect(timeout_ms=60_000, scan_duration_ms=5_000, min_conn_interval_us=11_500, max_conn_interval_us=11_500)
 ```
 
-Update(MAR2025): the default connection interval has been changed to 7_500 micro sec.  if you have installed aioble prior to 
+Update(MAR2025): the default connection interval has been changed to 7_500 micro sec.  If you have installed aioble prior to 
 [the commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
 modify the cord appropriately.
 
