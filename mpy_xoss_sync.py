@@ -13,6 +13,7 @@
 # 4. use of slice assignment and memoryview in handling notification packets and blocks.
 # 5. tested with XOSS G+ instead of Cycplus M2.
 # 6. timings/delays were adjusted for my use case (XOSS G+, Micropython-1.23.0 on ESP32-WROOM-32E with SD card, and aioble).
+# 7. support for STX (1024-byte) block in YMODEM, though it's not well tested.
 #
 # TODO:
 # 1. some brush-up, esp. in handling notify packets from aioble.
@@ -57,7 +58,7 @@ OK_DISKSPACE = bytearray([0x0a]) # r
 VALUE_STATUS = bytearray([0xff, 0x00, 0xff]) # w
 
 VALUE_SOH = bytearray([0x01])                             # SOH == 128-byte data
-#VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
+VALUE_STX = bytearray([0x02])                             # STX == 1024-byte data
 VALUE_C = bytearray([0x43])                               # 'C'
 #VALUE_G = bytearray([0x47])                               # 'G'
 VALUE_ACK = bytearray([0x06])                             # ACK
@@ -74,40 +75,49 @@ class BluetoothFileTransfer:
         self.tx_characteristic = None
         self.rx_characteristic = None
         # **Packet**
+        self.mtu_size = 23
         self.notification_data = bytearray()
         # **Block**
         self.is_block = False
-        self.block_data_size = 128
-        self.block_buf = bytearray(3 + self.block_data_size + 2)               # Header(SOH, num, ~num); data; CRC16
+        self.use_stx = False # True/False = STX/SOH
+        self.block_buf = bytearray(3 + 1024 + 2)                                 # Header(SOH/STX, num, ~num); data(128 or 1024 bytes); CRC16
         self.block_num = 0 # Block number(0-255).
         self.idx_block_buf = 0 # Index in block_buf.
         self.mv_block_buf = memoryview(self.block_buf)
-        self.block_data = self.mv_block_buf[3:-2]
-        self.block_crc = self.mv_block_buf[-2:]
+        self.block_size = None
+        self.block_data = None
+        self.block_crc = None
+        self.block_size_data_crc = (
+            (3 + 128 + 2, self.mv_block_buf[3:131], self.mv_block_buf[131:133], ), # SOH
+            (3 + 1024 + 2, self.mv_block_buf[3:-2], self.mv_block_buf[-2:], ),     # STX
+        )
         self.block_error = False
         # **File**                                                               A file is made of blocks; a block is made of packets.
         self.data_size = 0
         self.data_written = 0
         self.filename = ''
         self.is_write_mode = False
-        self.write_buf = bytearray(self.block_data_size * 4)
+        self.write_buf = bytearray(128 * 4)                                      # This write buffer is exclusively used in SOH blocks.
         self.mv_write_buf = memoryview(self.write_buf)
-        self.write_buf_page = tuple(self.mv_write_buf[i*self.block_data_size:(i+1)*self.block_data_size] for i in range(4))
+        self.write_buf_page = tuple(self.mv_write_buf[i * 128:(i+1) * 128] for i in range(4))
         self.idx_write_buf = 0
 
     async def notify_handler(self):
         _EOT = bytes(VALUE_EOT)
+        _STX = VALUE_STX[0]
         queue = self.tx_characteristic._notify_queue
 
-        def append_to_block_buf(data):
-            if (len_data := len(data)):
-                self.block_buf[self.idx_block_buf:self.idx_block_buf + len_data] = data
-                self.idx_block_buf += len_data
+        def append_to_block_buf(d):
+            if (len_d := len(d)):
+                self.block_buf[self.idx_block_buf:self.idx_block_buf + len_d] = d
+                self.idx_block_buf += len_d
 
-        async def fill_queue(n, timeout_ms):
+        async def fill_queue(timeout_ms):
             async def q():
-                while len(queue) < n:
-                    await asyncio.sleep_ms(10)
+                n = to_be_filled
+                while sum((len(x) for x in queue)) < n:
+                    #await asyncio.sleep_ms(10)
+                    await asyncio.sleep_ms(2)
             try:
                 await asyncio.wait_for_ms(q(), timeout_ms)
             except asyncio.TimeoutError:
@@ -119,7 +129,10 @@ class BluetoothFileTransfer:
                 self.is_block = False
                 self.notification_data[:] = data
             elif self.is_block:                                                     # Packets should be combined to make a block.
-                await fill_queue(n=6, timeout_ms=150)
+                self.use_stx = True if data[0] == _STX else False
+                self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.use_stx)]
+                if (to_be_filled := self.block_size - len(data)) > 0:
+                    await fill_queue(timeout_ms=150)
                 append_to_block_buf(data)
                 while len(queue) >= 1:
                     append_to_block_buf(queue.popleft())
@@ -180,21 +193,31 @@ class BluetoothFileTransfer:
     async def read_block(self):
         # [ESP32] A cleaner implementation with asyncio.Event() than this polling function lead to a decreased throughput.
         async def check_block_buf():
-            while self.is_block and self.idx_block_buf < 133: # c.f. 1+1+1+128+2=133 bytes (one block)
-                await asyncio.sleep_ms(10)
+            while self.is_block and self.idx_block_buf == 0:
+                #await asyncio.sleep_ms(10)
+                await asyncio.sleep_ms(2)
+            await asyncio.sleep_ms(0)
+            block_size = self.block_size
+            while self.is_block and self.idx_block_buf < block_size: # block_size = 133/1029 bytes in SOH/STX (one block)
+                #await asyncio.sleep_ms(10)
+                await asyncio.sleep_ms(2)
 
         def write_to_buf(data):
-            self.write_buf_page[self.idx_write_buf][:] = data
-            self.idx_write_buf += 1
-            if self.idx_write_buf == 4:
-                self.save_chunk_raw(self.write_buf)
-                self.idx_write_buf = 0
-            elif (self.data_written + self.block_data_size) == self.data_size:
-                flush_write_buf()
-            return self.block_data_size
+            if self.use_stx: # Do not use write_buf in STX.
+                if self.idx_write_buf > 0: flush_write_buf()
+                self.save_chunk_raw(data)
+            else:
+                self.write_buf_page[self.idx_write_buf][:] = data
+                self.idx_write_buf += 1
+                if self.idx_write_buf == 4:
+                    self.save_chunk_raw(self.write_buf)
+                    self.idx_write_buf = 0
+                elif (self.data_written + self.block_size - 5) == self.data_size:
+                    flush_write_buf()
+            return self.block_size - 5
 
         def flush_write_buf():
-            self.save_chunk_raw(self.mv_write_buf[:self.idx_write_buf * self.block_data_size])
+            self.save_chunk_raw(self.mv_write_buf[:self.idx_write_buf * 128])
             self.idx_write_buf = 0
 
         try:
@@ -204,7 +227,7 @@ class BluetoothFileTransfer:
                 self.block_error = True
             else:
                 if self.is_write_mode:                                                    # Blocks should be combined to make a file.
-                    if (self.data_written + self.block_data_size) <= self.data_size:
+                    if (self.data_written + self.block_size - 5) <= self.data_size:
                         self.data_written += write_to_buf(self.block_data)
                     else:
                         if self.idx_write_buf > 0: flush_write_buf()
@@ -278,9 +301,11 @@ class BluetoothFileTransfer:
                 if self.block_num % 128 == 0: gc.collect()
                 if self.block_error:
                     await self.clear_notify_queue()
-                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 10)               # Send NAK on error.
+                    #await self.send_cmd(self.rx_characteristic, VALUE_NAK, 10)               # Send NAK on error.
+                    await self.send_cmd(self.rx_characteristic, VALUE_NAK, 2)               # Send NAK on error.
                 else:
-                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 10)               # Send ACK.
+                    #await self.send_cmd(self.rx_characteristic, VALUE_ACK, 10)               # Send ACK.
+                    await self.send_cmd(self.rx_characteristic, VALUE_ACK, 2)               # Send ACK.
             notify_handler_task.cancel()
             await self.end_of_transfer()
             if self.data_written != self.data_size:
@@ -314,7 +339,10 @@ class BluetoothFileTransfer:
         retries = 2
         while True:
             try:
-                connection = await device.connect(timeout_ms=60_000)
+                #connection = await device.connect(timeout_ms=60_000)
+                connection = await device.connect(
+                    timeout_ms=60_000, 
+                    scan_duration_ms=5_000, min_conn_interval_us=7_500, max_conn_interval_us=7_500)
                 break
             except asyncio.TimeoutError:
                 retries -= 1
@@ -328,7 +356,7 @@ class BluetoothFileTransfer:
                 service = await connection.service(_SERVICE_UUID)
                 self.ctl_characteristic = await service.characteristic(_CTL_CHARACTERISTIC_UUID)
                 self.tx_characteristic = await service.characteristic(_TX_CHARACTERISTIC_UUID)
-                self.tx_characteristic._notify_queue = deque((), 7)
+                self.tx_characteristic._notify_queue = deque((), 7)                     # TODO: check if 7 is sufficient for STX.
                 self.rx_characteristic = await service.characteristic(_RX_CHARACTERISTIC_UUID)
                 await self.ctl_characteristic.subscribe(notify=True)
                 await self.tx_characteristic.subscribe(notify=True)
@@ -338,6 +366,11 @@ class BluetoothFileTransfer:
                 return
 
             await self.read_diskspace()
+
+            # Increase MTU
+            await connection.exchange_mtu(mtu=209)
+            self.mtu_size = connection.mtu or self.mtu_size
+            print(f"MTU: {self.mtu_size}")
 
             if 'filelist.txt' in os.listdir('/sd'):
                 os.rename('/sd/filelist.txt', '/sd/filelist.old')
@@ -391,7 +424,8 @@ class BluetoothFileTransfer:
         table = ptr16(CRC16_ARC_TBL)
         i: int = 0
         while i < length:
-            crc = (crc >> 8) ^ table[(crc ^ data[i]) & 0xff]
+            crc = (crc >> 4) ^ table[(crc ^ data[i]) & 0x0F]
+            crc = (crc >> 4) ^ table[(crc ^ (data[i] >> 4)) & 0x0F]
             i += 1
         return crc
 
@@ -401,38 +435,8 @@ class BluetoothFileTransfer:
         return byte_array
 
 CRC16_ARC_TBL = array("H", (
-    0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
-    0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
-    0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
-    0x0A00, 0xCAC1, 0xCB81, 0x0B40, 0xC901, 0x09C0, 0x0880, 0xC841,
-    0xD801, 0x18C0, 0x1980, 0xD941, 0x1B00, 0xDBC1, 0xDA81, 0x1A40,
-    0x1E00, 0xDEC1, 0xDF81, 0x1F40, 0xDD01, 0x1DC0, 0x1C80, 0xDC41,
-    0x1400, 0xD4C1, 0xD581, 0x1540, 0xD701, 0x17C0, 0x1680, 0xD641,
-    0xD201, 0x12C0, 0x1380, 0xD341, 0x1100, 0xD1C1, 0xD081, 0x1040,
-    0xF001, 0x30C0, 0x3180, 0xF141, 0x3300, 0xF3C1, 0xF281, 0x3240,
-    0x3600, 0xF6C1, 0xF781, 0x3740, 0xF501, 0x35C0, 0x3480, 0xF441,
-    0x3C00, 0xFCC1, 0xFD81, 0x3D40, 0xFF01, 0x3FC0, 0x3E80, 0xFE41,
-    0xFA01, 0x3AC0, 0x3B80, 0xFB41, 0x3900, 0xF9C1, 0xF881, 0x3840,
-    0x2800, 0xE8C1, 0xE981, 0x2940, 0xEB01, 0x2BC0, 0x2A80, 0xEA41,
-    0xEE01, 0x2EC0, 0x2F80, 0xEF41, 0x2D00, 0xEDC1, 0xEC81, 0x2C40,
-    0xE401, 0x24C0, 0x2580, 0xE541, 0x2700, 0xE7C1, 0xE681, 0x2640,
-    0x2200, 0xE2C1, 0xE381, 0x2340, 0xE101, 0x21C0, 0x2080, 0xE041,
-    0xA001, 0x60C0, 0x6180, 0xA141, 0x6300, 0xA3C1, 0xA281, 0x6240,
-    0x6600, 0xA6C1, 0xA781, 0x6740, 0xA501, 0x65C0, 0x6480, 0xA441,
-    0x6C00, 0xACC1, 0xAD81, 0x6D40, 0xAF01, 0x6FC0, 0x6E80, 0xAE41,
-    0xAA01, 0x6AC0, 0x6B80, 0xAB41, 0x6900, 0xA9C1, 0xA881, 0x6840,
-    0x7800, 0xB8C1, 0xB981, 0x7940, 0xBB01, 0x7BC0, 0x7A80, 0xBA41,
-    0xBE01, 0x7EC0, 0x7F80, 0xBF41, 0x7D00, 0xBDC1, 0xBC81, 0x7C40,
-    0xB401, 0x74C0, 0x7580, 0xB541, 0x7700, 0xB7C1, 0xB681, 0x7640,
-    0x7200, 0xB2C1, 0xB381, 0x7340, 0xB101, 0x71C0, 0x7080, 0xB041,
-    0x5000, 0x90C1, 0x9181, 0x5140, 0x9301, 0x53C0, 0x5280, 0x9241,
-    0x9601, 0x56C0, 0x5780, 0x9741, 0x5500, 0x95C1, 0x9481, 0x5440,
-    0x9C01, 0x5CC0, 0x5D80, 0x9D41, 0x5F00, 0x9FC1, 0x9E81, 0x5E40,
-    0x5A00, 0x9AC1, 0x9B81, 0x5B40, 0x9901, 0x59C0, 0x5880, 0x9841,
-    0x8801, 0x48C0, 0x4980, 0x8941, 0x4B00, 0x8BC1, 0x8A81, 0x4A40,
-    0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,
-    0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
-    0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
+    0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+    0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
     ))
 
 
