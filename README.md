@@ -135,6 +135,11 @@ modify ```async def run()``` in mpy_xoss_sync.py:
 +               connection = await device.connect(timeout_ms=60_000, scan_duration_ms=5_000, min_conn_interval_us=11_500, max_conn_interval_us=11_500)
 ```
 
+Update(MAR2025): the default connection interval has been changed to 7_500 micro sec.  if you have installed aioble prior to 
+[the commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
+modify the cord appropriately.
+
+
 ~~The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill.~~ 
 For those working together with web client/server in memory constrained systems, I would suggest using ~~either~~ 
 the ordinary one (as shown in the CPython version) ~~or~~ 
