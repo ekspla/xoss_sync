@@ -71,13 +71,13 @@ D:\backup\Bicycle\XOSS\python>
 ```
 
 Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work. 
-For the other devices such as Cycplus and CooSpo, you may have to change the ```TARGET_NAME``` appropriately. 
+For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the ```TARGET_NAME``` appropriately. 
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 6. Change settings: 
 
-Settings of the device \(e.g. timezone, backlight, autopause, etc.\) can be changed via JSON file. In my case \(XOSS-G+ gen1\), 
+Settings of the device \(e.g. timezone, backlight, autopause, etc.\) can be modified via JSON file. In my case \(XOSS-G+ gen1\), 
 
  a. Download the file.
 ``` Python
@@ -113,7 +113,7 @@ mpremote mip install aioble
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
 The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with unix-port of MPY-1.23.0/aioble on PC-Linux-x64 (Core-i5).
 
-For the other devices such as Cycplus and CooSpo, you may have to change the ```_TARGET_NAME``` appropriately.
+For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the ```_TARGET_NAME``` appropriately.
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
 
 5. Optional
@@ -137,13 +137,13 @@ modify ```async def run()``` in mpy_xoss_sync.py:
 +               connection = await device.connect(timeout_ms=60_000, scan_duration_ms=5_000, min_conn_interval_us=11_500, max_conn_interval_us=11_500)
 ```
 
-Update(MAR2025): the default connection interval has been changed to 7_500 micro sec.  If you have installed aioble prior to 
+Update(MAR 2025): the default connection interval has been changed to 7_500 micro sec.  If you have installed aioble prior to 
 [the commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
 modify the code appropriately.
 
 
 ~~The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill.~~ 
-For those working together with web client/server in memory constrained systems, I would suggest using ~~either~~ 
+For those working together with web client/server in memory constrained systems, I would suggest using CRC16 of ~~either~~ 
 the ordinary one (as shown in the CPython version) ~~or~~ 
 ~~[LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py)~~.
 
@@ -152,20 +152,20 @@ The scripts work perfectly for my use case as shown above, but there are possibl
 of YMODEM in part as followings.
 
 - The script expects a transport with ~~MTU of 23, 128-byte data per block, and~~ CRC16/ARC (not CRC16/XMODEM).  I am not sure
-if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data in YMODEM (see, Notes 1 & 2).
+if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data (STX) in YMODEM (see, Notes 1 & 2).
 
-- Update(FEB 2025):  1024-byte data block (STX) in YMODEM is now supposed to work ~~only~~ in CPython version, though it's not well tested.
+- Update(FEB 2025):  STX in YMODEM is now supposed to work ~~only~~ in CPython version, though it's not well tested.
 If you can control MTU size, 206 which is used in [f-xoss project](https://github.com/DCNick3/f-xoss) 
 \(see below\) may be a good number because an STX block of 1029 bytes in YMODEM fits quite well in 
 1030 = mtu*5.
 
-- Update(MAR 2025):  1024-byte data block (STX) in YMODEM is now supposed to work also in MicroPython version, though it's not well tested.
+- Update(MAR 2025):  STX in YMODEM is now supposed to work also in MicroPython version, though it's not well tested.
 
 ## Notes
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
-requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
+requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV (aka Chen) used MTU of 206.
 
-2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data length extension) and STX. 
+2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data packet length extension) and STX. 
 See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 31 OCT 2024). 
@@ -244,9 +244,9 @@ x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1
 Although my XOSS-G+ shows `LE_2M_PHY = True` (BLE 5.0) in the feature response packet, [it stops communication silently and starts advertising again 
 after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet](https://github.com/ekspla/xoss_sync/blob/main/reference/Test_LL_PHYS_REQ.png). 
 It seems that the client's request of changing from 1M to 2M is not handled appropriately in the XOSS-G+ software as specified in the Bluetooth Core 
-Spec. This is similar to the case of unfunctional `Data Length Extension (DLE) = True` (BLE 4.2) as described in Notes 1 & 2. 
+Spec. This is similar to the case of unfunctional `Data Packet Length Extension (DLE) = True` (BLE 4.2) as described in Notes 1 & 2. 
 
-I am not sure if these problems are solved in the latest models.
+~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV (aka Chen) and Cycplus M2. 
 
 ## Appendix
 [A DIY Battery Replacement](https://github.com/ekspla/xoss_sync/blob/main/reference/batt_replacement.md)
