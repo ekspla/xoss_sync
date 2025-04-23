@@ -163,7 +163,7 @@ If you can control MTU size, 206 which is used in [f-xoss project](https://githu
 
 ## Notes
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
-requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV (aka Chen) used MTU of 206.
+requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
 
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data packet length extension) and STX. 
 See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
@@ -246,7 +246,7 @@ after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet](https://github.co
 It seems that the client's request of changing from 1M to 2M is not handled appropriately in the XOSS-G+ software as specified in the Bluetooth Core 
 Spec. This is similar to the case of unfunctional `Data Packet Length Extension (DLE) = True` (BLE 4.2) as described in Notes 1 & 2. 
 
-~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV (aka Chen) and Cycplus M2. 
+~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV and Cycplus M2. 
 
 ## Appendix
 [A DIY Battery Replacement](https://github.com/ekspla/xoss_sync/blob/main/reference/batt_replacement.md)
