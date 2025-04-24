@@ -250,3 +250,10 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 
 ## Appendix
 [A DIY Battery Replacement](https://github.com/ekspla/xoss_sync/blob/main/reference/batt_replacement.md)
+
+
+[Section 5. YMODEM Service](https://github.com/ekspla/xoss_sync/blob/main/reference/Section_5_YMODEM_Service.pdf)  
+
+As of APR 2025, they removed almost all of the explanations related to the file transfer from 
+[their official online document](https://developer.imxingzhe.com/docs/device/tracking_data_service/) for some unknown reason. 
+For convenience to the readers I have uploaded an archive of its translated version as above.
