@@ -14,6 +14,11 @@ The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/
 micro SD card, and aioble.  After a bit of modification (changes in the path to /sd), this code was also tested with a unix-port of MPY-1.23.0(+ 
 [PR#14006](https://github.com/micropython/micropython/pull/14006))/aioble on the same PC-Linux-x64 and TPLink UB400.
 
+## Disclaimer
+These codes are **not based on reverse engineering of firmwares on the devices and/or their proprietary companion apps (aka XOSS App)**, but 
+on the detailed explanations already shown in official developer's web site \(see [Appendix](https://github.com/ekspla/xoss_sync#appendix)\) 
+as well as on the well-known details of YMODEM protocol.
+
 ## Features
 These scripts allow you to:
 
