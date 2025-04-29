@@ -1,5 +1,7 @@
 # A DIY Battery Replacement
 
+(C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
+
 During a bicycle ride on a chilly winter in Dec. 2023, my XOSS G+ suddenly stopped working. 
 That was caused by the degraded battery (about 4 years & 28000 km of use) and the cold 
 atmosphere at around 0 deg C. I replaced the battery by myself after the ride. 
@@ -16,7 +18,7 @@ water resistant. I used the sharp knife and the tweezers to remove the glue on t
 very carefully.
 
 Once the glue removed, to unscrew and open the backpanel were quite easy.
-![Fig_XOSS_uncrewed](https://github.com/ekspla/xoss_sync/blob/main/reference/Fig_XOSS_uncrewed.jpg "XOSS G+ opened")
+![Fig_XOSS_unscrewed](https://github.com/ekspla/xoss_sync/blob/main/reference/Fig_XOSS_unscrewed.jpg "XOSS G+ opened")
 
 The damaged battery was sticked on inside the backpanel by an adhesive tape. Because 
 the connection points on the PCB were kindly marked as B+/-, there was little risk to 
