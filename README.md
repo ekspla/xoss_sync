@@ -94,7 +94,7 @@ await self.fetch_file(client, 'Setting.json')
 ``` Python
 await self.send_file(client, 'Setting.json')
 ```
-After the successful upload, you hear a short beep from the device. 
+After the successful upload, you hear a short beep from the device. The name might be `settings.json` on the other devices. 
 
 
 ## Usage (MicroPython version)
