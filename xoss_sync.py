@@ -18,7 +18,7 @@
 # 6. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
 # 7. addition of send_file() to modify device settings via JSON file (e.g. Setting.json or settings.json).
 # 8. support for STX (1024-byte) block in YMODEM, though it's not well tested.
-# 9. support for parsing track list file in JSON fromat.
+# 9. support for parsing track list file in JSON format.
 #
 # TODO:
 # 1. handling of fit-file data more efficiently on memory.
