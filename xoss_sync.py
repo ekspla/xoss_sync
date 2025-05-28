@@ -16,8 +16,9 @@
 # 4. use of slice assignment and memoryview in handling notification packets and blocks.
 # 5. tested with XOSS G+ instead of Cycplus M2.
 # 6. timings/delays were adjusted for my use case (XOSS G+, Win10 on Core-i5, TPLink UB400 BT dongle, py-3.8.6 and bleak-0.22.2).
-# 7. adiition of send_file() to modify device settings via JSON file (e.g. Setting.json).
+# 7. addition of send_file() to modify device settings via JSON file (e.g. Setting.json or settings.json).
 # 8. support for STX (1024-byte) block in YMODEM, though it's not well tested.
+# 9. support for parsing track list file in JSON fromat.
 #
 # TODO:
 # 1. handling of fit-file data more efficiently on memory.
@@ -417,6 +418,7 @@ class BluetoothFileTransfer:
                 ##await self.send_file(client, 'Setting.json')
                 ##return
 
+                # The name of the list may be 'workouts.json' on new devices.
                 await self.fetch_file(client, 'filelist.txt')
                 fit_files = self.extract_fit_filenames('filelist.txt')
 
@@ -433,16 +435,24 @@ class BluetoothFileTransfer:
                 print(f"Failed to connect to {device.name}")
 
     def extract_fit_filenames(self, file_path):
+        '''The list should be either a plain text (e.g. filelist.txt) or a JSON file.
+        '''
         fit_files = set()
-        pattern = re.compile(r'\d{14}\.fit')
 
         try:
             with open(file_path, 'r') as file:
-                lines = file.readlines()
-                for line in lines:
-                    match = pattern.search(line)
-                    if match:
-                        fit_files.add(match.group(0))
+                if not file_path.endswith(('.json','.JSON')):
+                    pattern = re.compile(r'\d{14}\.fit')
+                    lines = file.readlines()
+                    for line in lines:
+                        match = pattern.search(line)
+                        if match:
+                            fit_files.add(match.group(0))
+                else:
+                    import json
+                    json_dict = json.load(file)
+                    for x in json_dict['workouts']:
+                        fit_files.add(f'{x[0]}.fit')
         except Exception as e:
             print(f"Failed to read/parse file: {e}")
 
