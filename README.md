@@ -78,6 +78,7 @@ D:\backup\Bicycle\XOSS\python>
 Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work. 
 For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the ```TARGET_NAME``` appropriately. 
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
+On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from ```filelist.txt``` to ```workouts.json```. 
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 6. Change settings: 
