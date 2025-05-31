@@ -385,16 +385,24 @@ class BluetoothFileTransfer:
                     await self.fetch_file(fit_file)
 
     def extract_fit_filenames(self, file_path):
+        '''The list should be either a plain text (e.g. filelist.txt) or a JSON file.
+        '''
         fit_files = set()
-        pattern = re.compile(r'\d+\.fit')
 
         try:
             with open(file_path, 'r') as file:
-                lines = file.readlines()
-                for line in lines:
-                    match = pattern.search(line)
-                    if match:
-                        fit_files.add(match.group(0))
+                if not any((file_path.endswith(x) for x in ("json", "JSON"))):
+                    pattern = re.compile(r'\d+\.fit')
+                    lines = file.readlines()
+                    for line in lines:
+                        match = pattern.search(line)
+                        if match:
+                            fit_files.add(match.group(0))
+                else:
+                    import json
+                    json_dict = json.load(file)
+                    for x in json_dict['workouts']:
+                        fit_files.add(f'{x[0]}.fit')
         except Exception as e:
             print(f"Failed to read/parse file: {e}")
 
