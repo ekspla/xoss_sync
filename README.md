@@ -121,6 +121,7 @@ The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with uni
 
 For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the ```_TARGET_NAME``` appropriately.
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
+On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from ```filelist.txt``` to ```workouts.json```. 
 
 5. Optional
 
