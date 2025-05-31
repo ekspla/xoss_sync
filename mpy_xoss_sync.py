@@ -107,14 +107,13 @@ class BluetoothFileTransfer:
         _STX = VALUE_STX[0]
         queue = self.tx_characteristic._notify_queue
 
-        def append_to_block_buf(d):
-            if (len_d := len(d)):
-                self.block_buf[self.idx_block_buf:self.idx_block_buf + len_d] = d
-                self.idx_block_buf += len_d
+        def append_to_block_buf(data):
+            if (len_data := len(data)):
+                self.block_buf[self.idx_block_buf:self.idx_block_buf + len_data] = data
+                self.idx_block_buf += len_data
 
-        async def fill_queue(timeout_ms):
+        async def fill_queue(n, timeout_ms):
             async def q():
-                n = to_be_filled
                 while sum((len(x) for x in queue)) < n:
                     #await asyncio.sleep_ms(10)
                     await asyncio.sleep_ms(2)
@@ -125,14 +124,14 @@ class BluetoothFileTransfer:
 
         while True:
             data = await self.tx_characteristic.notified()
-            if data == _EOT:                                                         # Receive EOT.
+            if data == _EOT:                                                        # Receive EOT.
                 self.is_block = False
                 self.notification_data[:] = data
             elif self.is_block:                                                     # Packets should be combined to make a block.
                 self.use_stx = True if data[0] == _STX else False
                 self.block_size, self.block_data, self.block_crc = self.block_size_data_crc[int(self.use_stx)]
-                if (to_be_filled := self.block_size - len(data)) > 0:
-                    await fill_queue(timeout_ms=150)
+                if (n := self.block_size - len(data)) > 0:
+                    await fill_queue(n, timeout_ms=150)
                 append_to_block_buf(data)
                 while len(queue) >= 1:
                     append_to_block_buf(queue.popleft())
