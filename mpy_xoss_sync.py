@@ -390,7 +390,7 @@ class BluetoothFileTransfer:
 
         try:
             with open(file_path, 'r') as file:
-                if not any((file_path.endswith(x) for x in ("json", "JSON"))):
+                if not any((file_path.endswith(x) for x in ("json", "JSON"))): # TODO: this workaround is not required any more after MPY-1.25.0 (PR 16812).
                     pattern = re.compile(r'\d+\.fit')
                     lines = file.readlines()
                     for line in lines:
