@@ -372,6 +372,7 @@ class BluetoothFileTransfer:
             self.mtu_size = connection.mtu or self.mtu_size
             print(f"MTU: {self.mtu_size}")
 
+            # The name of the list may be 'workouts.json' on new devices.
             if 'filelist.txt' in os.listdir('/sd'):
                 os.rename('/sd/filelist.txt', '/sd/filelist.old')
             await self.fetch_file('filelist.txt')
