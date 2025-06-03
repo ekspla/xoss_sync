@@ -164,7 +164,7 @@ if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU
 - Update(FEB 2025):  STX in YMODEM is now supposed to work ~~only~~ in CPython version, though it's not well tested.
 If you can control MTU size, 206 which is used in [f-xoss project](https://github.com/DCNick3/f-xoss) 
 \(see below\) may be a good number because an STX block of 1029 bytes in YMODEM fits quite well in 
-1030 = mtu*5.
+1030 = mtu\*5.
 
 - Update(MAR 2025):  STX in YMODEM is now supposed to work also in MicroPython version, though it's not well tested.
 
@@ -221,11 +221,11 @@ MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
 
-1 s / 11.5 ms = 87 connections; 1 connection = 6 packets * 20 bytes (mtu=23);
+1 s / 11.5 ms = 87 connections; 1 connection = 6 packets \* 20 bytes (mtu=23);
 so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections + 1 connection for ACK in YMODEM.
 (The 6-packet limit in XOSS-G+ is, probably, required for compatibility to very old mobile phones.)
 
-87 connections/s * (128 data bytes / 3 connections) * 8 bits/byte = 29.7 kbps \[this would be 45.5 kbps for 7.5 ms interval\].
+87 connections/s \* (128 data bytes / 3 connections) \* 8 bits/byte = 29.7 kbps \[this would be 45.5 kbps for 7.5 ms interval\].
 
 
 On Win11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
