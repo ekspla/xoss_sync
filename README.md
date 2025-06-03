@@ -7,10 +7,10 @@ The codes make you free from proprietary XOSS app/software on the cloud; you tak
 A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss). 
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-**The PC (CPython) version** (```xoss_sync.py```) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle 
+**The PC (CPython) version** (`xoss_sync.py`) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle 
 (UB400, v4.0, CSR8510 chip)/Intel Wireless (v5.1), Python-3.8.6/3.12.6 and Bleak-0.22.2.
 
-**The MicroPython (MPY) version** (```mpy_xoss_sync.py```) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, 
+**The MicroPython (MPY) version** (`mpy_xoss_sync.py`) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, 
 micro SD card, and aioble.  After a bit of modification (changes in the path to /sd), this code was also tested with a unix-port of MPY-1.23.0(+ 
 [PR#14006](https://github.com/micropython/micropython/pull/14006))/aioble on the same PC-Linux-x64 and TPLink UB400.
 
@@ -39,7 +39,7 @@ These scripts allow you to:
 pip install bleak
 ```
 
-5. Download and run the script ```python xoss_sync.py```:
+5. Download and run the script `python xoss_sync.py`:
 
 ```
 D:\backup\Bicycle\XOSS\python>python xoss_sync.py
@@ -76,9 +76,9 @@ D:\backup\Bicycle\XOSS\python>
 ```
 
 Though I tested this only with XOSS G+ (Gen1) and Windows10/11/Linux(BlueZ 5.56), combinations of the other XOSS device/OS may work. 
-For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the ```TARGET_NAME``` appropriately. 
+For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the `TARGET_NAME` appropriately. 
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
-On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from ```filelist.txt``` to ```workouts.json```. 
+On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows, and Linux.
 
 6. Change settings: 
@@ -119,9 +119,9 @@ mpremote mip install aioble
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
 The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with unix-port of MPY-1.23.0/aioble on PC-Linux-x64 (Core-i5).
 
-For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the ```_TARGET_NAME``` appropriately.
+For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the `_TARGET_NAME` appropriately.
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
-On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from ```filelist.txt``` to ```workouts.json```. 
+On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
 
 5. Optional
 
@@ -129,7 +129,7 @@ Throughput (see Note 3) can be increased by specifying the optional connection p
 *max_conn_interval_us* [as described here.](https://github.com/micropython/micropython/issues/15418)  These intervals can be reduced to the 
 minimum value of 7_500 (7.5 ms) on ESP32-S3 and on PC-Linux-x64 using unix port.
 
-Modify ```async def _connect()``` in aioble/central.py:
+Modify `async def _connect()` in `aioble/central.py`:
 ``` Diff
 -           ble.gap_connect(device.addr_type, device.addr)
 +           ble.gap_connect(device.addr_type, device.addr, 5_000, 11_500, 11_500)
@@ -138,7 +138,7 @@ Modify ```async def _connect()``` in aioble/central.py:
 Alternatively, if you have installed the latest aioble after 
 [commit 68e3e07](https://github.com/micropython/micropython-lib/commit/68e3e07bc7ab63931cead3854b2a114e9a084248), 
 
-modify ```async def run()``` in mpy_xoss_sync.py:
+modify `async def run()` in `mpy_xoss_sync.py`:
 ``` Diff
 -               connection = await device.connect(timeout_ms=60_000)
 +               connection = await device.connect(timeout_ms=60_000, scan_duration_ms=5_000, min_conn_interval_us=11_500, max_conn_interval_us=11_500)
@@ -197,10 +197,10 @@ The connection intervals were measured by using
     - ESP32-S3/modified aioble(conn_intervals=11.5 ms), 00:03:46 (8.3 kbps).
     - ESP32-S3/modified aioble(conn_intervals=7.5 ms), reduced NAK/ACK delays and no explicit garbage-collection (GC), 00:02:42 (11.6 kbps).
        - Further optimization requires [a modified firmware with increased tick-rate in FreeRTOS](https://github.com/orgs/micropython/discussions/15594)
-; change ```CONFIG_FREERTOS_HZ``` from default value of 100 Hz \[10 ms\] to 1000 Hz \[1 ms\].
-    - ESP32-S3(```CONFIG_FREERTOS_HZ=1000```)/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, 00:02:05 (15.0 kbps).
+; change `CONFIG_FREERTOS_HZ` from default value of 100 Hz \[10 ms\] to 1000 Hz \[1 ms\].
+    - ESP32-S3(`CONFIG_FREERTOS_HZ=1000`)/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, 00:02:05 (15.0 kbps).
        - 7.5 ms connection interval (measured).
-       - While the client (mpy_xoss_sync.py) using ```_thread``` in ```file.write()``` improves a little, 00:02:00 (15.7 kbps), **the throughput is 
+       - While the client (mpy_xoss_sync.py) using `_thread` in `file.write()` improves a little, 00:02:00 (15.7 kbps), **the throughput is 
 determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no packets sent from XOSS-G+).  **Typically, 2-4 ACKs 
 (using 2-4 connection events) are necessary irrespective of connection intervals**.  The theoretical limit of 3 connections/block, as shown below, 
 does not occur because of the unresponsiveness.  See example sniffer logs of 
@@ -212,7 +212,7 @@ the intervals, may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com
        - The throughput was a bit less than those of ESP32-S3, probably because of the difference in bluetooth stacks; 
 [BTstack](https://github.com/bluekitchen/btstack) vs. [NimBLE](https://github.com/apache/mynewt-nimble).  Prior to the YMODEM-ACK an unnecessary 
 empty packet is always sent from BTstack to XOSS-G+, while this is not the case in ESP32s (using NimBLE).
-    - Using [a pair of test codes](https://github.com/ekspla/micropython_aioble_examples) (```nus_modem_server.py```, ```nus_modem_client.py```): 
+    - Using [a pair of test codes](https://github.com/ekspla/micropython_aioble_examples) (`nus_modem_server.py`, `nus_modem_client.py`): 
 MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was significantly faster 
