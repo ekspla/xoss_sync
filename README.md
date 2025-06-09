@@ -4,6 +4,7 @@ The codes make you free from proprietary XOSS app/software on the cloud; you tak
 
 (C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
 
+## Introduction
 A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss). 
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
