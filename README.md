@@ -7,12 +7,13 @@ The codes make you free from proprietary XOSS app/software on the cloud; you tak
 A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, inspired by [f-xoss project](https://github.com/DCNick3/f-xoss). 
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
-**The PC (CPython) version** (`xoss_sync.py`) was tested with XOSS G+ (Gen1), Windows10/11/Linux(BlueZ 5.56), TPLink USB BT dongle 
-(UB400, v4.0, CSR8510 chip)/Intel Wireless (v5.1), Python-3.8.6/3.12.6 and Bleak-0.22.2.
+**The PC \(CPython\) version** \([xoss_sync.py](https://github.com/ekspla/xoss_sync/blob/main/xoss_sync.py)\) was tested with XOSS G+ (Gen1), 
+Windows10/11/Linux\(BlueZ 5.56\), TPLink USB BT dongle \(UB400, v4.0, CSR8510 chip\)/Intel Wireless \(v5.1\), Python-3.8.6/3.12.6 and Bleak-0.22.2.
 
-**The MicroPython (MPY) version** (`mpy_xoss_sync.py`) was tested with MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, 
-micro SD card, and aioble.  After a bit of modification (changes in the path to /sd), this code was also tested with a unix-port of MPY-1.23.0(+ 
-[PR#14006](https://github.com/micropython/micropython/pull/14006))/aioble on the same PC-Linux-x64 and TPLink UB400.
+**The MicroPython \(MPY\) version** \([mpy_xoss_sync.py](https://github.com/ekspla/xoss_sync/blob/main/mpy_xoss_sync.py)\) was tested with 
+MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, micro SD card, and aioble.  After a bit of modification \(changes in the 
+path to /sd\), this code was also tested with a unix-port of MPY-1.23.0(+ [PR#14006](https://github.com/micropython/micropython/pull/14006))
+/aioble on the same PC-Linux-x64 and TPLink UB400.
 
 ## Disclaimer
 These codes are **not based on reverse engineering of firmwares on the devices and/or their proprietary companion apps (aka XOSS App)**, but 
