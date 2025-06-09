@@ -127,9 +127,9 @@ On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be cha
 
 5. Optional
 
-Throughput (see Note 3) can be increased by specifying the optional connection parameters of *scan_duration_ms*, *min_conn_interval_us* and 
-*max_conn_interval_us* [as described here.](https://github.com/micropython/micropython/issues/15418)  These intervals can be reduced to the 
-minimum value of 7_500 (7.5 ms) on ESP32-S3 and on PC-Linux-x64 using unix port.
+Throughput \(see [Note](https://github.com/ekspla/xoss_sync#notes) 3\) can be increased by specifying the optional connection parameters of 
+*scan_duration_ms*, *min_conn_interval_us* and *max_conn_interval_us* [as described here](https://github.com/micropython/micropython/issues/15418). 
+These intervals can be reduced to the minimum value of 7_500 (7.5 ms) on ESP32-S3 and on PC-Linux-x64 using unix port.
 
 Modify `async def _connect()` in `aioble/central.py`:
 ``` Diff
@@ -157,11 +157,12 @@ the ordinary one (as shown in the CPython version) ~~or~~
 ~~[LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py)~~.
 
 ## Limitation
-The scripts work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
+Both of the scripts work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
 of YMODEM in part as followings.
 
-- The script expects a transport with ~~MTU of 23, 128-byte data per block, and~~ CRC16/ARC (not CRC16/XMODEM).  I am not sure
-if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data (STX) in YMODEM (see, Notes 1 & 2).
+- The scripts expect a transport with ~~MTU of 23, 128-byte data per block, and~~ CRC16/ARC (not CRC16/XMODEM).  I am not sure
+if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data (STX) in YMODEM \(see, 
+[Notes](https://github.com/ekspla/xoss_sync#notes) 1 & 2\).
 
 - Update(FEB 2025):  STX in YMODEM is now supposed to work ~~only~~ in CPython version, though it's not well tested.
 If you can control MTU size, 206 which is used in [f-xoss project](https://github.com/DCNick3/f-xoss) 
@@ -253,7 +254,8 @@ x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1
 Although my XOSS-G+ shows `LE_2M_PHY = True` (BLE 5.0) in the feature response packet, [it stops communication silently and starts advertising again 
 after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet](https://github.com/ekspla/xoss_sync/blob/main/reference/Test_LL_PHYS_REQ.png). 
 It seems that the client's request of changing from 1M to 2M is not handled appropriately in the XOSS-G+ software as specified in the Bluetooth Core 
-Spec. This is similar to the case of unfunctional `Data Packet Length Extension (DLE) = True` (BLE 4.2) as described in Notes 1 & 2. 
+Spec. This is similar to the case of unfunctional `Data Packet Length Extension (DLE) = True` (BLE 4.2) as described in 
+[Notes](https://github.com/ekspla/xoss_sync#notes) 1 & 2. 
 
 ~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV and Cycplus M2. 
 
