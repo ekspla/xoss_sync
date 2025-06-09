@@ -31,7 +31,7 @@ These scripts allow you to:
 ## Usage (PC version)
 1. Install bluetooth low energy interface/driver software on your PC.
 
-2. Check if your device and the PC can be paired.
+2. Check if your device and the PC can be connected.
 
 3. Install [Python](https://www.python.org/) (of course).
 
@@ -231,8 +231,8 @@ so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections 
 87 connections/s \* (128 data bytes / 3 connections) \* 8 bits/byte = 29.7 kbps \[this would be 45.5 kbps for 7.5 ms interval\].
 
 
-On Win11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
-respectively.  There is no API in Bleak on Windows to change this setting though.  The measured throughput of 3.6 kbps on Win11 using 
+On Windows 11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
+respectively.  There is no API in Bleak on Windows to change this setting though.  The measured throughput of 3.6 kbps on Windows 11 using 
 Intel Wireless adapter (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value using the sniffer.
 On Linux, the min/max connection intervals may be specified by the user (see below).
 
