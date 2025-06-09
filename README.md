@@ -18,7 +18,7 @@ path to /sd\), this code was also tested with a unix-port of MPY-1.23.0(+ [PR#14
 ## Disclaimer
 These codes are **not based on reverse engineering of firmwares on the devices and/or their proprietary companion apps (aka XOSS App)**, but 
 on the detailed explanations already shown in official developer's web site \(see [Appendix](https://github.com/ekspla/xoss_sync#appendix)\) 
-as well as on the well-known details of YMODEM protocol.
+as well as on [the well-known details of YMODEM protocol](https://github.com/ekspla/xoss_sync/blob/main/reference/XMODEM-YMODEM-Protocol-Refrence.pdf).
 
 ## Features
 These scripts allow you to:
