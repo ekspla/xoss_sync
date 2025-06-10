@@ -19,7 +19,7 @@ path to /sd\), this code was also tested with a unix-port of MPY-1.23.0(+ [PR#14
 ## Disclaimer
 These codes are **not based on reverse engineering of firmwares on the devices and/or their proprietary companion apps (aka XOSS App)**, but 
 on the detailed explanations already shown in official developer's web site \(see [Appendix](#appendix)\) 
-as well as on [the well-known details of YMODEM protocol](reference/XMODEM-YMODEM-Protocol-Refrence.pdf).
+as well as on [the well-known details of YMODEM protocol](reference/XMODEM-YMODEM-Protocol-Refrence.pdf?raw=true).
 
 ## Features
 These scripts allow you to:
@@ -172,6 +172,7 @@ If you can control MTU size, 206 which is used in [f-xoss project](https://githu
 - Update(MAR 2025):  STX in YMODEM is now supposed to work also in MicroPython version, though it's not well tested.
 
 ## Notes
+
 <a name="note-1"></a>
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
@@ -268,7 +269,7 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 [A DIY Battery Replacement](reference/batt_replacement.md)
 
 
-[Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf)  
+[Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf?raw=true)  
 
 As of APR 2025, they removed almost all of the explanations related to the file transfer from 
 [their official online document](https://developer.imxingzhe.com/docs/device/tracking_data_service/) for some unknown reason. 
