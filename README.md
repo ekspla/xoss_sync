@@ -172,8 +172,8 @@ If you can control MTU size, 206 which is used in [f-xoss project](https://githu
 - Update(MAR 2025):  STX in YMODEM is now supposed to work also in MicroPython version, though it's not well tested.
 
 ## Notes
-<a name="note-1"></a>  
-1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
+<a name="note-1">
+1.</a> My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
 
 <a name="note-2"></a>
