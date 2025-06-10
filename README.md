@@ -18,8 +18,8 @@ path to /sd\), this code was also tested with a unix-port of MPY-1.23.0(+ [PR#14
 
 ## Disclaimer
 These codes are **not based on reverse engineering of firmwares on the devices and/or their proprietary companion apps (aka XOSS App)**, but 
-on the detailed explanations already shown in official developer's web site \(see [Appendix](https://github.com/ekspla/xoss_sync#appendix)\) 
-as well as on [the well-known details of YMODEM protocol](https://github.com/ekspla/xoss_sync/blob/main/reference/XMODEM-YMODEM-Protocol-Refrence.pdf).
+on the detailed explanations already shown in official developer's web site \(see [Appendix](#appendix)\) 
+as well as on [the well-known details of YMODEM protocol](reference/XMODEM-YMODEM-Protocol-Refrence.pdf).
 
 ## Features
 These scripts allow you to:
@@ -127,7 +127,7 @@ On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be cha
 
 5. Optional
 
-Throughput \(see [Note](https://github.com/ekspla/xoss_sync#notes) 3\) can be increased by specifying the optional connection parameters of 
+Throughput \(see [Note 3](#note-3)\) can be increased by specifying the optional connection parameters of 
 *scan_duration_ms*, *min_conn_interval_us* and *max_conn_interval_us* [as described here](https://github.com/micropython/micropython/issues/15418). 
 These intervals can be reduced to the minimum value of 7_500 (7.5 ms) on ESP32-S3 and on PC-Linux-x64 using unix port.
 
@@ -154,15 +154,15 @@ modify the code appropriately.
 ~~The look-up-table (256 elements) with Viper implementation of CRC16/ARC used in this version may be overkill.~~ 
 For those working together with web client/server in memory constrained systems, I would suggest using CRC16 of ~~either~~ 
 the ordinary one (as shown in the CPython version) ~~or~~ 
-~~[LUT with index-width of four bits \(16 elements\)](https://github.com/ekspla/xoss_sync/blob/main/reference/crc16_arc_table.py)~~.
+~~[LUT with index-width of four bits \(16 elements\)](reference/crc16_arc_table.py)~~.
 
 ## Limitation
 Both of the scripts work perfectly for my use case as shown above, but there are possible limitations due mainly to the implementation
 of YMODEM in part as followings.
 
-- The scripts expect a transport with ~~MTU of 23, 128-byte data per block, and~~ CRC16/ARC (not CRC16/XMODEM).  I am not sure
-if the SoC(seems to be nRF52832)/software in the XOSS device supports larger MTU or 1024-byte data (STX) in YMODEM \(see, 
-[Notes](https://github.com/ekspla/xoss_sync#notes) 1 & 2\).
+- The scripts expect a transport with ~~MTU of 23, 128-byte data per block, and~~ CRC16/ARC \(not CRC16/XMODEM\).  I am not sure
+if the SoC\(seems to be nRF52832\)/software in the XOSS device supports larger MTU or 1024-byte data \(STX\) in YMODEM \(see, 
+[Notes 1](#note-1) & [2](#note-2)\).
 
 - Update(FEB 2025):  STX in YMODEM is now supposed to work ~~only~~ in CPython version, though it's not well tested.
 If you can control MTU size, 206 which is used in [f-xoss project](https://github.com/DCNick3/f-xoss) 
@@ -172,19 +172,22 @@ If you can control MTU size, 206 which is used in [f-xoss project](https://githu
 - Update(MAR 2025):  STX in YMODEM is now supposed to work also in MicroPython version, though it's not well tested.
 
 ## Notes
+<a name="note-1"></a>
 1. My XOSS-G+ (Gen1) was found to be not changing MTU(23)/block data size(128) with Win11 and Bluetooth 5.1 interface, which always 
 requests MTU of 527, while [f-xoss project](https://github.com/DCNick3/f-xoss) for XOSS-NAV used MTU of 206.
 
+<a name="note-2"></a>
 2. The proprietary XOSS App on mobile phone itself seems to support larger MTU/block data size by DLE (data packet length extension) and STX. 
 See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
+<a name="note-3"></a>
 3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 31 OCT 2024). 
 The connection intervals were measured by using 
 [nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
-       - 50.0 ms connection interval (measured); this could not be changed (see Note 4).
+       - 50.0 ms connection interval (measured); this could not be changed \(see [Note 4](#note-4)\).
 - CPython/Bleak version
     - Windows10 and TPLink UB400, 00:03:45 (8.4 kbps).
        - 15.0 ms connection interval (measured).
@@ -207,8 +210,8 @@ The connection intervals were measured by using
 determined by the unresponsive peripheral** to the ACKs in YMODEM (i.e. no packets sent from XOSS-G+).  **Typically, 2-4 ACKs 
 (using 2-4 connection events) are necessary irrespective of connection intervals**.  The theoretical limit of 3 connections/block, as shown below, 
 does not occur because of the unresponsiveness.  See example sniffer logs of 
-[7.5](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_7r5ms.png) 
-and [50 ms](https://github.com/ekspla/xoss_sync/blob/main/reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of 
+[7.5](reference/conn_intvl_7r5ms.png) 
+and [50 ms](reference/conn_intvl_50ms.png) for details.  This strange issue, irrespective of 
 the intervals, may be caused by [Nordic's SoftDevice](https://www.nordicsemi.com/products/nrf52832/) in XOSS-G+.
     - MPY-Linux/modified aioble(conn_intervals=7.5 ms), optimized delays and no GC, 00:02:25 (13.0 kbps).
        - 7.5 ms connection interval (measured).
@@ -219,7 +222,7 @@ empty packet is always sent from BTstack to XOSS-G+, while this is not the case 
 MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - 7.5 ms connection interval (measured).
        - The throughput was significantly faster 
-[without the strange unresponsive delays caused by XOSS-G+](https://github.com/ekspla/xoss_sync/blob/main/reference/test_code_pair_7r5ms.png).
+[without the strange unresponsive delays caused by XOSS-G+](reference/test_code_pair_7r5ms.png).
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
@@ -236,6 +239,7 @@ respectively.  There is no API in Bleak on Windows to change this setting though
 Intel Wireless adapter (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value using the sniffer.
 On Linux, the min/max connection intervals may be specified by the user (see below).
 
+<a name="note-4"></a>
 4. Conn_min_interval/conn_max_interval on Linux kernels.
 
 Unfortunately, changing the parameters did not work for the XOSS App/Android-x86 in my case.
@@ -249,21 +253,22 @@ x86:/ # echo 9 > /sys/kernel/debug/bluetooth/hci0/conn_min_interval     # 9 * 1.
 x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1.25 = 25 ms
 ```
 
+<a name="note-5"></a>
 5. LE 2M PHY support of XOSS-G+.
 
 Although my XOSS-G+ shows `LE_2M_PHY = True` (BLE 5.0) in the feature response packet, [it stops communication silently and starts advertising again 
-after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet](https://github.com/ekspla/xoss_sync/blob/main/reference/Test_LL_PHYS_REQ.png). 
+after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet](reference/Test_LL_PHYS_REQ.png). 
 It seems that the client's request of changing from 1M to 2M is not handled appropriately in the XOSS-G+ software as specified in the Bluetooth Core 
 Spec. This is similar to the case of unfunctional `Data Packet Length Extension (DLE) = True` (BLE 4.2) as described in 
-[Notes](https://github.com/ekspla/xoss_sync#notes) 1 & 2. 
+[Notes 1](#note-1) & [2](#note-2). 
 
 ~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV and Cycplus M2. 
 
 ## Appendix
-[A DIY Battery Replacement](https://github.com/ekspla/xoss_sync/blob/main/reference/batt_replacement.md)
+[A DIY Battery Replacement](reference/batt_replacement.md)
 
 
-[Section 5. YMODEM Service](https://github.com/ekspla/xoss_sync/blob/main/reference/Section_5_YMODEM_Service.pdf)  
+[Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf)  
 
 As of APR 2025, they removed almost all of the explanations related to the file transfer from 
 [their official online document](https://developer.imxingzhe.com/docs/device/tracking_data_service/) for some unknown reason. 
