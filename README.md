@@ -223,7 +223,7 @@ MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - The throughput was significantly faster 
 [without the strange unresponsive delays caused by XOSS-G+](reference/test_code_pair_7r5ms.png).  
 
-From an official review article \(G Gen1 and G+ Gen2, 13 June 2023\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list),
+From an official review article \[G Gen1 and G+ Gen2 (aka G2+), 13 June 2023\] linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list),
 the estimated throughputs using XOSS app with the reviewer's mobile phone are as followings.  
 
 50 kB = 50 * 1000 = 50000 bytes; I am not quite sure if *kB* in the review means *1000* or *1024* bytes though.
