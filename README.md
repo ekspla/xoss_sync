@@ -232,7 +232,7 @@ the estimated throughputs using XOSS app with the reviewer's mobile phone are as
  - G+ Gen2: 50000 bytes * 8 bit/byte / 5 s = 80 kbps.
 
 These throughputs of 19 and 80 kbps of Gen1 and 2 are, respectively, close to those with my G+ Gen1 as shown above \(15.0 kbps\) and 
-[those using `STX` and `MTU=209` with MPY-Linux \(server\) and ESP32-S3 \(client\) \(94.3 kbps\)](https://github.com/ekspla/micropython_aioble_examples#how-can-we-handle-successive-notified-packets-as-a-client-using-aioble).  
+[those using `STX` and `MTU=209` with MPY-Linux \(server\) and ESP32-S3 \(client\)](https://github.com/ekspla/micropython_aioble_examples#how-can-we-handle-successive-notified-packets-as-a-client-using-aioble) \(94.3 kbps\).  
 
 The reviewers data also suggests that G+ Gen2 uses `STX` and `increased MTU` \(but without `2M PHY`\).  
 
