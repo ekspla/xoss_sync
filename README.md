@@ -223,15 +223,15 @@ MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - The throughput was significantly faster 
 [without the strange unresponsive delays caused by XOSS-G+](reference/test_code_pair_7r5ms.png).  
 
-From an official review article \[G Gen1 and G+ Gen2 (aka G2+), 13 June 2023\] linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list),
+From an official review article \(13 June 2023\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list),
 the estimated throughputs using XOSS app with the reviewer's mobile phone are as followings.  
 
 50 kB = 50 * 1000 = 50000 bytes; I am not quite sure if *kB* in the review means *1000* or *1024* bytes though.
 
  - G Gen1: 50000 bytes * 8 bit/byte / 21 s = 19 kbps.
- - G+ Gen2: 50000 bytes * 8 bit/byte / 5 s = 80 kbps.
+ - G+ Gen2 (aka G2+): 50000 bytes * 8 bit/byte / 5 s = 80 kbps.
 
-These throughputs of 19 and 80 kbps of Gen1 and 2 are, respectively, close to those with my G+ Gen1 as shown above \(15.0 kbps\) and 
+These throughputs of 19 and 80 kbps with Gen1 and Gen2 are, respectively, close to those with my G+ Gen1 as shown above \(15.0 kbps\) and 
 [those using `STX` and `MTU=209` with MPY-Linux \(server\) and ESP32-S3 \(client\)](https://github.com/ekspla/micropython_aioble_examples#how-can-we-handle-successive-notified-packets-as-a-client-using-aioble) \(94.3 kbps\). 
 The reviewer's data suggests that G+ Gen2 uses `STX` and `increased MTU` \(but without `2M PHY`\).  
 
