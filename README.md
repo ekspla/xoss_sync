@@ -275,6 +275,21 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 
 ~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV and Cycplus M2. 
 
+
+<a name="note-6"></a>
+6. XOSS app supported models.
+
+| Model | SoC | MTU | STX | DLE | 2M | Battery |
+| ----- | --- | --- | --- | --- | -- | ------- |
+| Sprint | nRF52832 | 23 fixed | NA | NA | NA | ? |
+| G Gen1 | nRF52832 | 23 fixed | NA | NA | NA | 503035 |
+| G Gen2 | nRF52833 | by negotiation | Yes | NA (?) | NA | 603030 |
+| G Gen3 | ? | ? | ? | ? | ? | ? |
+| NAV | nRF52840 | by negotiation | Yes | Yes | NA (?) | 503040 |
+| Cycplus M1 | nRF52832 | 23 fixed (?) | NA (?) | NA | 603450 |
+| Cycplus M2 | nRF52832 | by negotiation | Yes | NA | 523450 |
+
+
 ## Appendix
 [A DIY Battery Replacement](reference/batt_replacement.md)
 
