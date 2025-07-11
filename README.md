@@ -289,6 +289,8 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 | Cycplus M1 | nRF52832 | 23 fixed (?) | NA (?) | NA | NA | 603450 |
 | Cycplus M2 | nRF52832 | by negotiation | Yes | Yes | NA | 523450 |
 | Cycplus M3 | ? | ? | ? | ? | ? | 604050 |
+| CooSpo BC102/107 series | nRF52832 | 23 fixed (?) | NA (?) | NA (?) | NA | 553346 |
+| CooSpo BC200 | nRF52840 | ? | ? | ? | ? | 603945 |
 
 
 ## Appendix
