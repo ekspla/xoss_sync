@@ -237,7 +237,7 @@ The reviewer's data suggests that G+ Gen2 uses `STX` and `increased MTU` \(but w
 
 In the latest review article \(22 July 2025\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list), 
 the sync times of Gen2 and Gen3 were 10 and 6 seconds, respectively, for a 30 km ride data. The estimated throughput of Gen3 would be 
-130 kbps using the data in previous review as shown above.  
+\(10 s / 6 s \) * 80 kbps = 130 kbps using the data in previous review as shown above.  
 
 (c.f.)
 Theoretical limit using 11.5 ms connection interval on MPY/aioble:
