@@ -288,7 +288,7 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 | Sprint | nRF52832 | 23 fixed | NA | NA | NA | ? |
 | G Gen1 | nRF52832 | 23 fixed | NA | NA | NA | 503035 |
 | G Gen2 | nRF52833 | by negotiation | Yes | NA (?) | NA | 603030 |
-| G Gen3 | ? | by negotiation | Yes | Yes | Yes (?) | ? |
+| G Gen3 | ? | by negotiation | Yes | Yes | NA (?) | ? |
 | NAV | nRF52840 | by negotiation | Yes | Yes | NA (?) | 503040 |
 | Cycplus M1 | nRF52832 | 23 fixed (?) | NA (?) | NA | NA | 603450 |
 | Cycplus M2 | nRF52832 | by negotiation | Yes | Yes | NA | 523450 |
