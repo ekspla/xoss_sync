@@ -281,7 +281,7 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 
 
 <a name="note-6"></a>
-6. XOSS app supported models.
+6. XOSS app \(YMODEM on Nordic UART Service\) supported models.
 
 | Model | SoC | MTU | STX | DLE | 2M | Battery |
 | ----- | --- | --- | --- | --- | -- | ------- |
