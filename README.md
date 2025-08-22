@@ -240,7 +240,7 @@ the sync times of Gen2 and Gen3 were 10 and 6 seconds, respectively, for a 30 km
 \(10 s / 6 s \) * 80 kbps = 130 kbps using the data in previous review as shown above.  
 
 (c.f.)
-Theoretical limit using 11.5 ms connection interval and 128-byte data (SOH) on MPY/aioble:
+Theoretical limit using 11.5 ms connection interval and 128-byte data per block (SOH) on MPY/aioble:
 
 1 s / 11.5 ms = 87 connections; 1 connection = 6 packets \* 20 bytes (MTU = 23);
 so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections + 1 connection for ACK in YMODEM.
