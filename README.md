@@ -187,7 +187,7 @@ The connection intervals were measured by using
 [Wireshark](https://www.wireshark.org/download.html).
 - Proprietary XOSS App
     - Android-x86 and TPLink UB400, 00:07:27 (4.2 kbps).
-       - 50.0 ms connection interval (measured); this could not be changed \(see [Note 4](#note-4)\).
+       - 50.0 ms connection interval (measured); this could not be changed \(see [Note 5](#note-5)\).
 - CPython/Bleak version
     - Windows 10 and TPLink UB400, 00:03:45 (8.4 kbps).
        - 15.0 ms connection interval (measured).
