@@ -97,7 +97,7 @@ await self.fetch_file(client, 'Setting.json')
 ``` Python
 await self.send_file(client, 'Setting.json')
 ```
-After the successful upload, you hear a short beep from the device. The name might be `settings.json` on the other devices. 
+After the successful upload, you hear a short beep from the device. The filename might be `settings.json` on the other devices. 
 
 
 ## Usage (MicroPython version)
@@ -181,7 +181,7 @@ which always requests MTU of 527, while [f-xoss project](https://github.com/DCNi
 and STX.  See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 <a name="note-3"></a>
-3. Sync times (throughputs in parentheses) using my FIT file of 235,723 bytes were as followings (as of 31 OCT 2024). 
+3. Sync times (throughputs in parentheses) of G+ Gen1 using my FIT file of 235,723 bytes were as followings (as of 31 OCT 2024). 
 The connection intervals were measured by using 
 [nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
@@ -223,22 +223,6 @@ MPY-Linux (server) --> ESP32-S3 (client), 00:01:08 (27.7 kbps).
        - The throughput was significantly faster 
 [without the strange unresponsive delays caused by XOSS-G+](reference/test_code_pair_7r5ms.png).  
 
-From an official review article \(13 June 2023\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list),
-the estimated throughputs using XOSS app with the reviewer's mobile phone are as followings.  
-
-50 kB = 50 * 1000 = 50000 bytes; I am not quite sure if *kB* in the review means *1000* or *1024* bytes though.
-
- - G Gen1: 50000 bytes * 8 bit/byte / 21 s = 19 kbps.
- - G+ Gen2 (aka G2+): 50000 bytes * 8 bit/byte / 5 s = 80 kbps.
-
-These throughputs of 19 and 80 kbps with Gen1 and Gen2 are, respectively, close to those with my G+ Gen1 as shown above \(15.0 kbps\) and 
-[those using `STX` and `MTU=209` with MPY-Linux \(server\) and ESP32-S3 \(client\)](https://github.com/ekspla/micropython_aioble_examples#how-can-we-handle-successive-notified-packets-as-a-client-using-aioble) \(94.3 kbps\). 
-The reviewer's data suggests that G+ Gen2 uses `STX` and `increased MTU` \(but without `2M PHY`\).  
-
-In the latest review article \(22 July 2025\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list), 
-the sync times of Gen2 and Gen3 were 10 and 6 seconds, respectively, for a 30 km ride data. The estimated throughput of Gen3 would be 
-\(10 s / 6 s \) * 80 kbps = 130 kbps using the data in previous review as shown above.  
-
 (c.f.)
 Theoretical limit using 11.5 ms connection interval and 128-byte data per block (SOH) on MPY/aioble:
 
@@ -248,14 +232,32 @@ so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections 
 
 87 connections/s \* (128 data bytes / 3 connections) \* 8 bits/byte = 29.7 kbps \[this would be 45.5 kbps for 7.5 ms interval\].
 
-
 On Windows 11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
 respectively.  There is no API in Bleak on Windows to change this setting though.  The measured throughput of 3.6 kbps on Windows 11 using 
 Intel Wireless adapter (as shown above) suggests *Balanced* setting, which agrees well with those of the measured value using the sniffer.
-On Linux, the min/max connection intervals may be specified by the user (see below).
+On Linux, the min/max connection intervals may be specified by the user \(see [Note 5](#note-5)\).
 
 <a name="note-4"></a>
-4. Conn_min_interval/conn_max_interval on Linux kernels.
+4. Throughputs of newer devices.
+
+From an official review article \(13 June 2023\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list),
+the estimated throughputs using XOSS app with the reviewer's mobile phone are as followings.  
+
+50 kB = 50 \* 1000 = 50000 bytes; I am not quite sure if *kB* in the review means *1000* or *1024* bytes though.
+
+ - G Gen1: 50000 bytes * 8 bit/byte / 21 s = 19 kbps.
+ - G+ Gen2 (aka G2+): 50000 bytes * 8 bit/byte / 5 s = 80 kbps.
+
+These throughputs of 19 and 80 kbps with Gen1 and Gen2 are, respectively, close to those with my G+ Gen1 shown in [Note 3](#note-3) \(15.0 kbps\) and 
+[those using `STX` and `MTU=209` with MPY-Linux server and ESP32-S3 client](https://github.com/ekspla/micropython_aioble_examples#how-can-we-handle-successive-notified-packets-as-a-client-using-aioble) \(94.3 kbps\). 
+The reviewer's data suggests that G+ Gen2 uses `STX` and `increased MTU` \(but without `2M PHY`\).  
+
+In the latest review article \(22 July 2025\) linked in [Xingzhe's web site](https://www.imxingzhe.com/newsv2/list), 
+the sync times of Gen2 and Gen3 were 10 and 6 seconds, respectively, for a 30 km ride data. The estimated throughput of Gen3 would be 
+\(10 s / 6 s \) * 80 kbps = 130 kbps using the data in the previous review. The heigher throughput may be due to DLE (and/or 2M PHY).
+
+<a name="note-5"></a>
+5. Conn_min_interval/conn_max_interval on Linux kernels.
 
 Unfortunately, changing the parameters did not work for the XOSS App / Android-x86 in my case.
 ``` ShellSession
@@ -268,20 +270,19 @@ x86:/ # echo 9 > /sys/kernel/debug/bluetooth/hci0/conn_min_interval     # 9 * 1.
 x86:/ # echo 20 > /sys/kernel/debug/bluetooth/hci0/conn_max_interval    # 20 * 1.25 = 25 ms
 ```
 
-<a name="note-5"></a>
-5. LE 2M PHY support of XOSS-G+.
+<a name="note-6"></a>
+6. LE 2M PHY support of XOSS-G+.
 
-Although my XOSS-G+ shows `LE_2M_PHY = True` (BLE 5.0) in the feature response packet, [it stops communication silently and starts advertising again 
+Although my G+ Gen1 shows `LE_2M_PHY = True` (BLE 5.0) in the feature response packet, [it stops communication silently and starts advertising again 
 after receiving a `LL_PHYS_REQ (preference of 2M PHY)` packet](reference/Test_LL_PHYS_REQ.png). 
 It seems that the client's request of changing from 1M to 2M is not handled appropriately in the XOSS-G+ software as specified in the Bluetooth Core 
 Spec. This is similar to the case of unfunctional `Data Packet Length Extension (DLE) = True` (BLE 4.2) as described in 
 [Notes 1](#note-1) & [2](#note-2). 
 
-~~I am not sure if these problems are solved in the latest models.~~ It seems that DLE is supported in XOSS NAV and Cycplus M2. 
+~~I am not sure if these issues are resolved in the latest models.~~ It seems that DLE is supported in XOSS NAV and Cycplus M2. 
 
-
-<a name="note-6"></a>
-6. XOSS app \(YMODEM on Nordic UART Service\) supported models.
+<a name="note-7"></a>
+7. XOSS app \(YMODEM on Nordic UART Service\) supported models.
 
 | Model | SoC | MTU | STX | DLE | 2M | Battery |
 | ----- | --- | --- | --- | --- | -- | ------- |
@@ -298,8 +299,9 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 
 
 ## Appendix
-[A DIY Battery Replacement](reference/batt_replacement.md)
+[A DIY Battery Replacement](reference/batt_replacement.md)  
 
+Make your device last longer.  
 
 [Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf?raw=true)  
 
