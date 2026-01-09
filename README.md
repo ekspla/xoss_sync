@@ -9,7 +9,8 @@ A quick/preliminary version of code to use with XOSS G+ GPS cyclo-computer, insp
 The code is a modified version of [cycsync.py](https://github.com/Kaiserdragon2/CycSync) for Cycplus M2, which does not work for my use case as is.
 
 **The PC \(CPython\) version** \([xoss_sync.py](https://github.com/ekspla/xoss_sync/blob/main/xoss_sync.py)\) was tested with XOSS G+ (Gen1), 
-Windows 10 and 11 / Linux \(BlueZ 5.56\), TPLink USB BT dongle \(UB400, v4.0, CSR8510 chip\) / Intel Wireless \(v5.1\), Python-3.8.6/3.12.6 and Bleak-0.22.2.
+Windows 10 and 11 / Linux \(BlueZ 5.56\), TPLink USB BT dongle \(UB400, v4.0, CSR8510 chip\) / Intel Wireless \(v5.1\), Python-3.8.6/3.12.6 and 
+Bleak-0.22.2/2.0.0.
 
 **The MicroPython \(MPY\) version** \([mpy_xoss_sync.py](https://github.com/ekspla/xoss_sync/blob/main/mpy_xoss_sync.py)\) was tested with 
 MPY-1.23.0/1.24.0-preview on ESP32-WROOM-32E/ESP32-S3-WROOM-1, micro SD card, and aioble.  After a bit of modification \(changes in the 
@@ -181,7 +182,7 @@ which always requests MTU of 527, while [f-xoss project](https://github.com/DCNi
 and STX.  See, for example [this Xingzhe's web site](https://developer.imxingzhe.com/docs/device/tracking_data_service/).
 
 <a name="note-3"></a>
-3. Sync times (throughputs in parentheses) of G+ Gen1 using my FIT file of 235,723 bytes were as followings (as of 31 OCT 2024). 
+3. Sync times (throughputs in parentheses) of G+ Gen1 using my FIT file of 235,723 bytes were as followings (as of 08 JAN 2026). 
 The connection intervals were measured by using 
 [nRF Sniffer for BLE](https://www.nordicsemi.com/Products/Development-tools/nRF-Sniffer-for-Bluetooth-LE/Download) (nRF52840 dongle) and 
 [Wireshark](https://www.wireshark.org/download.html).
@@ -191,8 +192,10 @@ The connection intervals were measured by using
 - CPython/Bleak version
     - Windows 10 and TPLink UB400, 00:03:45 (8.4 kbps).
        - 15.0 ms connection interval (measured).
-    - Windows 11 and Intel Wireless, 00:08:41 (3.6 kbps).
+    - Windows 11 and Intel Wireless (default), 00:08:41 (3.6 kbps).
        - 60.0 ms connection interval (measured).
+    - Windows 11 and Intel Wireless \([*ThroughputOptimized*](https://github.com/ekspla/micropython_aioble_examples/commit/3b4cf56098703d57cda80d53aa18d9e87e50f1e4)\), 00:03:26 (9.2 kbps).
+       - 15.0 ms connection interval (measured).
     - Linux (BlueZ 5.56) and TPLink UB400, 00:07:08 (4.4 kbps).
        - 50.0 ms connection interval (measured).
 - MPY/aioble version (hereafter: ESP32 = ESP32-WROOM-32E; ESP32-S3 = ESP32-S3-WROOM-1-N16R8; MPY-Linux = unix-port on PC-Linux-x64 / TPLink UB400)
