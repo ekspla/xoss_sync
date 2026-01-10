@@ -238,8 +238,8 @@ so, 133 bytes (data/block \[128\], header \[3\] and CRC \[2\]) == 2 connections 
 On Windows 11, the limits are 1.9, 5.7 and 22.8 kbps for *PowerOptimized* (180 ms), *Balanced* (60 ms) and *ThroughputOptimized* (15 ms) BLE settings, 
 respectively.  There is no API in Bleak on Windows to change this setting while Win11 users can try to change it with WinRT 
 [as shown in here](https://github.com/ekspla/micropython_aioble_examples/commit/3b4cf56098703d57cda80d53aa18d9e87e50f1e4).
-The measured throughput of 3.6 kbps on Windows 11 using Intel Wireless adapter (as shown above) suggests *Balanced* (default) setting, 
-which agrees well with those of the measured value using the sniffer.
+~~The measured throughput of 3.6 kbps on Windows 11 using Intel Wireless adapter (as shown above) suggests *Balanced* (default) setting, 
+which agrees well with those of the measured value using the sniffer.~~
 On Linux, the min/max connection intervals may be specified by the user \(see [Note 5](#note-5)\).
 
 <a name="note-4"></a>
