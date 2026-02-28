@@ -121,8 +121,8 @@ class BluetoothFileTransfer:
                 async for bd, ad in scanner.advertisement_data():
                     print(f"Found device: {bd.name} - {bd.address}")
                     #print(f" {bd!r} with {ad!r}")
-                    found = (bd.name or "").startswith(target_name) or (ad.local_name or "").startswith(target_name)
-                    if found: return bd
+                    if target_name in (bd.name or "") or target_name in (ad.local_name or ""):
+                        return bd
 
             print("Scanning for Bluetooth devices...")
             try:
