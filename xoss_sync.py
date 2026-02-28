@@ -116,20 +116,22 @@ class BluetoothFileTransfer:
         return notification_handler
 
     async def discover_device(self, target_name):
-        print("Scanning for Bluetooth devices...")
-        retries = 3
-        while retries > 0:
-            devices = await BleakScanner.discover(timeout=30.0)
+        async with BleakScanner() as scanner:
+            async def lookup_device():
+                async for bd, ad in scanner.advertisement_data():
+                    print(f"Found device: {bd.name} - {bd.address}")
+                    #print(f" {bd!r} with {ad!r}")
+                    found = (bd.name or "").startswith(TARGET_NAME) or (ad.local_name or "").startswith(TARGET_NAME)
+                    if found: return bd
 
-            for device in devices:
-                print(f"Found device: {device.name} - {device.address}")
-                if device.name is not None and target_name in device.name:
-                    print(f"Found target device: {device.name} - {device.address}")
-                    return device
-            retries -= 1
-
-        print(f"Device with name {target_name} not found.")
-        return None
+            print("Scanning for Bluetooth devices...")
+            try:
+                device = await asyncio.wait_for(lookup_device(), timeout=90)
+            except asyncio.TimeoutError:
+                print(f"Device with name {target_name} not found.")
+                return None
+            print(f"Found target device: {device.name} - {device.address}")
+            return device
 
     async def start_notify(self, client, uuid):
         try:
