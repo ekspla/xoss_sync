@@ -318,7 +318,7 @@ For convenience to the readers I have uploaded an archive of its translated vers
 
 By using [VxKex](https://github.com/i486/VxKex), it is interesting to see the 
 CPython/Bleak version of code running *on Windows 7 sp1* (FX-6300, AMD), *which does not 
-support BLE*, with [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode).
+support BLE naitively*, with [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode).
 
 Considering the [Google-Bumble's](https://github.com/google/bumble) Bluetooth host stack implemented 
 by CPython, sync speed (10.1 kbps, see below) was not too bad using mtu of 23 and connection 
