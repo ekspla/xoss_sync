@@ -306,12 +306,60 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 
 
 ## Appendix
-[A DIY Battery Replacement](reference/batt_replacement.md)  
+### [A DIY Battery Replacement](reference/batt_replacement.md)  
 
 Make your device last longer.  
 
-[Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf?raw=true)  
+### [Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf?raw=true)  
 
 As of APR 2025, they removed almost all of the explanations related to the file transfer from 
 [their official online document](https://developer.imxingzhe.com/docs/device/tracking_data_service/) for some unknown reason. 
-For convenience to the readers I have uploaded an archive of its translated version as above.
+For convenience to the readers I have uploaded an archive of its translated version as above.  
+
+### [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode)  
+
+By using [VxKex](https://github.com/i486/VxKex), it is interesting to see the 
+CPython/Bleak version of code running *on Windows 7 sp1* (FX-6300, AMD), *which does not 
+support BLE naitively*, with [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode).
+
+Considering the [Google-Bumble's](https://github.com/google/bumble) Bluetooth host stack implemented 
+by CPython, sync speed (10.1 kbps, see below) was not too bad using mtu of 23 and connection 
+interval of 7.5 ms.  
+
+``` Python
+(venv) venv>Scripts\python.exe
+Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import platform
+>>> platform.system()
+'Windows'
+>>> platform.version()
+'6.1.7601'    # 6.1 = Windows 7
+>>> exit()
+
+(venv) venv>Scripts\pip.exe freeze
+ ...
+bleak==3.0.1
+# Editable install with no version control (bleak_bumble==0.0.5)
+ ...
+bumble==0.0.227
+ ...
+(venv) venv>
+
+(venv) venv>Scripts\python.exe .\xoss_sync.py
+Scanning for Bluetooth devices...
+Found device: XOSS G-040989 - EC:37:9F:xx:yy:zz
+Found target device: XOSS G-040989 - EC:37:9F:xx:yy:zz
+Connected to XOSS G-040989
+MTU 23
+Notifications started
+Free Diskspace: 480/8104kb
+
+Successfully wrote combined data to filelist.txt
+
+Sun Apr 19 10:36:29 2026
+Successfully wrote combined data to 20260328072816.fit    # 688,459 * 8 / 543 = 10.1 kbps
+Sun Apr 19 10:45:32 2026
+
+(venv) venv>
+```
