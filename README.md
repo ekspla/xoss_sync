@@ -32,6 +32,8 @@ options:
 
 ```
 
+I am planning on adding a helper script for GPS setting configuration (Settings.json) and timestamps for benchmarking in the near future. It would also be really exciting to get DLE working on my XOSS G Gen2.
+
 (C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
 
 ## Introduction
