@@ -4,6 +4,34 @@ The codes make you free from proprietary XOSS app/software on the cloud; you tak
 
 [My fork](https://github.com/molleraj/xoss_sync/) provides command line arguments through the Python argparse library and includes additional options to change GPS settings and delete selected activity files, as provided in the XOSS Android app.
 
+Below is the usage of my enhanced xoss sync Python script tested on Lubuntu 24.04:
+```
+usage: enhanced_xoss_sync.py [-h] [--list_storage_used_only | --no-list_storage_used_only] [--delete_selected_files DELETE_SELECTED_FILES]
+                             [--save_all_files | --no-save_all_files] [--get_settings_from_json | --no-get_settings_from_json]
+                             [--change_settings_with_json | --no-change_settings_with_json] [--set_mtu_size SET_MTU_SIZE]
+                             [--define_trace_list_filename DEFINE_TRACE_LIST_FILENAME]
+
+Set parameters for XOSS bike GPS sync script (e.g., saving new files or deleting files specified in list).
+
+options:
+  -h, --help            show this help message and exit
+  --list_storage_used_only, --no-list_storage_used_only
+                        List GPS storage used and exit if specified (default false).
+  --delete_selected_files DELETE_SELECTED_FILES
+                        Delete files from GPS in list specified by this argument.
+  --save_all_files, --no-save_all_files
+                        Sync all files on GPS, except for those confirmed to already have been saved (default true).
+  --get_settings_from_json, --no-get_settings_from_json
+                        Get GPS settings by saving Settings.json JSON file to PC.
+  --change_settings_with_json, --no-change_settings_with_json
+                        Change GPS settings with Settings.json JSON file.
+  --set_mtu_size SET_MTU_SIZE
+                        Set maximum transferable unit (MTU) size (default 517).
+  --define_trace_list_filename DEFINE_TRACE_LIST_FILENAME
+                        Set name of json containing all traces/workouts (default workouts.json).
+
+```
+
 (C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
 
 ## Introduction
