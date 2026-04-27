@@ -240,11 +240,14 @@ class BluetoothFileTransfer:
     	# make command to confirm file deleted
     	value_ok_file_delete = self.make_command(OK_FILE_DELETE, filename)
     	# check if file deleted
-    	if (self.crc8_xor(self.notification_data) == 0 and 
-            self.notification_data.startswith(OK_FILE_DELETE)):
-            diskspace = self.notification_data[1:-1].decode('utf-8')
-            print(f"Successfully deleted file {filename}.")
-    	# if self.notification_data == self.make_command(OK_FILE_DELETE, filename):
+    	# if (self.crc8_xor(self.notification_data) == 0 and 
+        #    self.notification_data.startswith(OK_FILE_DELETE)):
+        #    diskspace = self.notification_data[1:-1].decode('utf-8')
+        #    print(f"Successfully deleted file {filename}.")
+    	if self.notification_data == self.make_command(OK_FILE_DELETE, filename):
+    		print(f"Successfully deleted file {filename}.")
+    	else:
+    		print(f"Failed to delete file {filename}.")
     	#	retries = 3
     	# await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, value_ok_file_delete, 0.1)
     	# await self.wait_until_data(client)
@@ -479,7 +482,11 @@ class BluetoothFileTransfer:
                 	with open(args.delete_selected_files, 'r') as file:
                 		for line in file:
                 			# strip() removes the trailing newline character (\n)
+                			# indicate status
                 			print("Deleting ",line.strip())
+                			# actually delete file with above construct
+                			await self.delete_file(client, line.strip())
+                			
 				
                 # The name of the list may be 'workouts.json' on new devices.
                 await self.fetch_file(client, args.define_trace_list_filename)
