@@ -78,6 +78,10 @@ def parse_args():
 	parser.add_argument("--delete_selected_files",required=False,help="Delete files from GPS in list specified by this argument.")
 	# save files
 	parser.add_argument("--save_all_files",required=False,default=True,action=argparse.BooleanOptionalAction,help="Sync all files on GPS, except for those confirmed to already have been saved (default true).")
+	# save list of all files on GPS
+	parser.add_argument("--save_trace_filelist",required=False,default=False,action=argparse.BooleanOptionalAction,help="Save list of all trace files currently present on GPS (default false).")
+	# name for output trace filelist
+	parser.add_argument("--output_trace_filelist_name",required=False,default="fit_files.txt",help="Filename for list of trace files currently present on GPS (default fit_files.txt).")
 	# get parameters from specified JSON (e.g., Setting.json)
 	parser.add_argument("--get_settings_from_json",required=False,default=False,action=argparse.BooleanOptionalAction,help="Get GPS settings by saving Settings.json JSON file to PC.")
 	# set parameters with specified JSON (e.g., Setting.json)
@@ -491,7 +495,13 @@ class BluetoothFileTransfer:
                 # The name of the list may be 'workouts.json' on new devices.
                 await self.fetch_file(client, args.define_trace_list_filename)
                 fit_files = self.extract_fit_filenames(args.define_trace_list_filename)
-
+                # if requested, save list of fit files to specified file
+                if (args.save_trace_filelist is True):
+                	print(f"Saving list of trace files on GPS to {args.output_trace_filelist_name}")
+                	with open(args.output_trace_filelist_name, "w") as f:
+                		for fit_file in fit_files:
+                			f.write(f"{fit_file}\n")
+                
                 for fit_file in fit_files:
                     if os.path.exists(fit_file):
                         print(f'Skip: {fit_file}')
