@@ -84,21 +84,22 @@ For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to chan
 On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows and Linux.
 
-6. Change settings: 
+6. Change settings:  
+    Settings of the device \(e.g. timezone, backlight, autopause, etc.\) can be modified via JSON file. In my case \(XOSS-G+ gen1\),  
 
-Settings of the device \(e.g. timezone, backlight, autopause, etc.\) can be modified via JSON file. In my case \(XOSS-G+ gen1\), 
+   a. Download the file.  
+   ``` Python
+   await self.fetch_file(client, 'Setting.json')
+   ```
 
- a. Download the file.
-``` Python
-await self.fetch_file(client, 'Setting.json')
-```
- b. Modify the file.
+   b. Modify the file.  
+   A link to the file format is given in [appendix](https://github.com/ekspla/xoss_sync#file-format-of-workoutjson-settingjson-and-settingsjson).
 
- c. Upload the modified file.
-``` Python
-await self.send_file(client, 'Setting.json')
-```
-After the successful upload, you hear a short beep from the device. The filename might be `settings.json` on the other devices. 
+   c. Upload the modified file.  
+   ``` Python
+   await self.send_file(client, 'Setting.json')
+   ```
+   After the successful upload, you hear a short beep from the device. The filename might be `settings.json` on the other devices.
 
 
 ## Usage (MicroPython version)
