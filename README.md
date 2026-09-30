@@ -297,6 +297,7 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 | G Gen2 | nRF52833 | by negotiation | Yes | NA (?) | NA | 603030 |
 | G Gen3 | nRF52833 | by negotiation | Yes | Yes | NA (?) | 503040 |
 | NAV | nRF52840 | by negotiation | Yes | Yes | NA (?) | 503040 |
+| NAV Pro (aka NAV Gen2) | ? | ? | ? | ? | ? | ? |
 | Cycplus M1 | nRF52832 | 23 fixed (?) | NA (?) | NA | NA | 603450 |
 | Cycplus M2 | nRF52832 | by negotiation | Yes | Yes | NA | 523450 |
 | Cycplus M3 | nRF52832 (?) | ? | ? | ? | ? | 604050 |
