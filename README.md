@@ -78,10 +78,13 @@ Skip: 20240601060515.fit
 D:\backup\Bicycle\XOSS\python>
 ```
 
-Though I tested this only with XOSS G+ (Gen1) and Windows (10 / 11) / Linux (BlueZ 5.56), combinations of the other XOSS device / OS may work. 
+Though I tested this only with XOSS G+ (Gen1) and Windows (10 / 11) / Linux (BlueZ 5.56), combinations of the other XOSS device / OS may work.
+
+The other devices such as those listed in [Note 7](#note-7), using [the same file transfer protocol](#appendix-protocol), also work with a bit of modification; 
+there are newer devices, e.g. [Coospo CS500/600, that use a different protocol](#appendix-cs500) though. 
 For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the `TARGET_NAME` appropriately. 
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
-On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
+On newer XOSS devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
 [Bleak](https://github.com/hbldh/bleak) supports Android, MacOS, Windows and Linux.
 
 6. Change settings:  
@@ -93,7 +96,7 @@ On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be cha
    ```
 
    b. Modify the file.  
-   A link to the file format is given in [appendix](https://github.com/ekspla/xoss_sync#file-format-of-workoutjson-settingjson-and-settingsjson).
+   A link to the file format is given in [appendix](#appendix-json).
 
    c. Upload the modified file.  
    ``` Python
@@ -123,9 +126,11 @@ mpremote mip install aioble
 Though it works very well as PC version, this is an ad hoc implementation to MPY/aioble. 
 The code was also tested with MPY-1.24.0-preview/aioble on ESP32-S3 and with unix-port of MPY-1.23.0/aioble on PC-Linux-x64 (Core-i5).
 
+The other devices such as those listed in [Note 7](#note-7), using [the same file transfer protocol](#appendix-protocol), also work with a bit of modification; 
+there are newer devices, e.g. [Coospo CS500/600, that use a different protocol](#appendix-cs500) though. 
 For the other devices such as Cycplus, CooSpo and ROCKBROS, you may have to change the `_TARGET_NAME` appropriately.
 [Issue #1](https://github.com/ekspla/xoss_sync/issues/1) might be useful for Cycplus M2 users.
-On newer devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
+On newer XOSS devices (e.g. XOSS NAV & G2+), the name of the track list has to be changed from `filelist.txt` to `workouts.json`. 
 
 5. Optional
 
@@ -310,6 +315,7 @@ Spec. This is similar to the case of unfunctional `Data Packet Length Extension 
 
 Make your device last longer.  
 
+<a name="appendix-protocol"></a>
 ### [Section 5. YMODEM Service](reference/Section_5_YMODEM_Service.pdf?raw=true)  
 
 As of APR 2025, they removed almost all of the explanations related to the file transfer from 
@@ -364,7 +370,13 @@ Sun Apr 19 10:45:32 2026
 (venv) venv>
 ```
 
+<a name="appendix-json"></a>
 ### File format of `workout.json`, `Setting.json` and `settings.json`  
 
 The formats and examples are shown in 
 [the official developer's document](https://developer.imxingzhe.com/docs/device/devicefileformat).
+
+<a name="appendix-cs500"></a>
+### Newer Coospo devices (CS500/600)  
+
+The details of file transfer protocol is shown in [here](https://gist.github.com/blshkv/022b7f67b3962b002429ed3115ce3caf).
