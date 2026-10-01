@@ -379,4 +379,4 @@ The formats and examples are shown in
 <a name="appendix-cs500"></a>
 ### Newer Coospo devices (CS500/600)  
 
-The details of file transfer protocol is shown in [here](https://gist.github.com/blshkv/022b7f67b3962b002429ed3115ce3caf).
+A command line tool and the details of file transfer protocol is shown in [here](https://github.com/blshkv/coospo-cli).
