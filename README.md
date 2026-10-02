@@ -19,7 +19,7 @@ path to /sd\), this code was also tested with a unix-port of MPY-1.23.0 (+ [PR#1
 
 ## Disclaimer
 These codes are **not based on reverse engineering of firmwares on the devices and/or their proprietary companion apps (aka XOSS App)**, but 
-on the detailed explanations already shown in official developer's web site \(see [Appendix](#appendix)\) 
+on the detailed explanations already shown in official developer's web site \(see [Appendix](appendix-protocol)\) 
 as well as on [the well-known details of YMODEM protocol](reference/XMODEM-YMODEM-Protocol-Refrence.pdf?raw=true).
 
 ## Features
@@ -322,14 +322,14 @@ As of APR 2025, they removed almost all of the explanations related to the file 
 [their official online document](https://developer.imxingzhe.com/docs/device/tracking_data_service/) for some unknown reason. 
 For convenience to the readers I have uploaded an archive of its translated version as above.  
 
-### [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode)  
+### [Bleak-Bumble \(Bleak with Bumble backend\)](https://github.com/ekspla/bleak-bumble_dev_host_mode)  
 
 By using [VxKex](https://github.com/i486/VxKex), it is interesting to see the 
 CPython/Bleak version of code running *on Windows 7 sp1* (FX-6300, AMD), *which does not 
-support BLE naitively*, with [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode).
+support BLE natively*, with [Bleak-Bumble](https://github.com/ekspla/bleak-bumble_dev_host_mode).
 
 Considering the [Google-Bumble's](https://github.com/google/bumble) Bluetooth host stack implemented 
-by CPython, sync speed (10.1 kbps, see below) was not too bad using mtu of 23 and connection 
+in CPython, sync speed (10.1 kbps, see below) was not too bad using mtu of 23 and connection 
 interval of 7.5 ms.  
 
 ``` Python
